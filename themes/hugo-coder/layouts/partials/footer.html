@@ -1,0 +1,18 @@
+<footer class="footer">
+  <section class="container">
+    ©
+    <a href="http://www.beian.miit.gov.cn">粤ICP备2022070611号-1</a>
+
+    {{ if (and .Site.Params.since (lt .Site.Params.since now.Year)) }}
+      {{ .Site.Params.since }} -
+    {{ end }}
+    {{ now.Year }}
+    
+    {{ if (and .Site.Params.license) }}
+      {{ i18n "licensed_under" }} {{ .Site.Params.license | safeHTML }}
+    ·
+    {{ end }}
+    {{ i18n "powered_by" }} <a href="https://gohugo.io/">Hugo</a> & <a href="https://jasjojo.com/">JAS</a>
+    
+  </section>
+</footer>
