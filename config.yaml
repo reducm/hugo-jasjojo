@@ -1,0 +1,55 @@
+baseURL: https://jasjojo.com/
+languageCode: en-us
+title: JASJOJO的网站
+theme: "hugo-coder"
+
+paginate: 20
+
+pygmentsstyle: bw
+pygmentscodefences: true
+pygmentscodefencesguesssyntax: true
+
+# disqusShortname: "yourdiscussshortname"
+
+params:
+  author: JAS
+  info: 工程师技术分享网站
+  description: 全栈工程师/编程语言类/后端开发/devops/前端/游戏技术等
+  keywords: blog,developer,personal
+  avatarurl: images/avatar.png
+  #gravatar = "john.doe@example.com"
+  favicon_32: /img/favicon-32x32.png"
+  favicon_16: /img/favicon-16x16.png
+  since: 2012
+  enableTwemoji: true
+  colorScheme: auto
+  hidecolorschemetoggle: false
+  social:
+    - name: Github
+      icon: fa fa-github fa-2x
+      weight: 1
+      url: https://github.com/reducm/
+  # customCSS: 
+  #   - css/custom.css
+  # customSCSS: 
+  #   - scss/custom.scss
+  # customJS: 
+  #   - js/custom.js
+  
+taxonomies:
+  category: "categories"
+  series: "series"
+  tag: "tags"
+  author: "authors"
+
+menu:
+ main: 
+  - name: "文档"
+    weight: 1
+    url: posts/
+  - name: "项目"
+    weight: 2
+    url: projects/
+  # - name: "关于"
+  #   weight: 3
+  #   url: about/
