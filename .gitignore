@@ -68,3 +68,4 @@ __debug_bin
 
 _gen
 .hugo_build.lock
+public/
