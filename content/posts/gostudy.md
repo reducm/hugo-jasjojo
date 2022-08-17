@@ -2033,7 +2033,7 @@ func JwtAuth(r *gin.Engine) (*jwt.GinJWTMiddleware, error) {
 省略引用方式 import . "fmt"
 此时相当于把包 fmt 的命名空间直接合并到当前程序的命名空间中，使用 fmt 包内可导出元素可以不用前缀 fmt. ，直接引用。示例如下：
 
-```go
+```go {linenos=table}
 package main
 import . "fmt"
 func main() {

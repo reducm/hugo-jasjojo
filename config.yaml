@@ -5,9 +5,9 @@ theme: "hugo-coder"
 
 paginate: 20
 
-pygmentsstyle: bw
-pygmentscodefences: true
-pygmentscodefencesguesssyntax: true
+#pygmentsstyle: bw
+#pygmentscodefences: true
+#pygmentscodefencesguesssyntax: true
 
 # disqusShortname: "yourdiscussshortname"
 
@@ -53,3 +53,19 @@ menu:
   # - name: "关于"
   #   weight: 3
   #   url: about/
+  #
+markup:
+  highlight:
+    anchorLineNos: false
+    codeFences: true
+    guessSyntax: false
+    hl_Lines: ""
+    hl_inline: false
+    lineAnchors: ""
+    lineNoStart: 1
+    lineNos: false
+    lineNumbersInTable: true
+    noClasses: true
+    noHl: false
+    style: monokailight
+    tabWidth: 4
