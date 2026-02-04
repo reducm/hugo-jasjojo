@@ -237,6 +237,91 @@ hugo list published
 4. **日期格式**: 使用 ISO 8601 格式（`YYYY-MM-DDTHH:MM:SS+08:00`）
 5. **URL 生成**: Hugo 会根据文件名自动生成 URL，可以使用 `slug` 字段自定义
 
+## 部署流程
+
+### 服务器信息
+
+- **服务器**: tcloud
+- **代码目录**: /home/jojo/project/hugo-jasjojo
+- **构建目录**: /home/jojo/project/hugo
+- **构建命令**: hugo
+
+### 部署步骤
+
+#### 1. 提交代码到本地仓库
+
+```bash
+cd /Users/jojo/.openclaw/workspace/hugo-jasjojo
+git add -A
+git commit -m "提交说明"
+```
+
+#### 2. 推送到 GitHub 远程仓库
+
+```bash
+git push
+```
+
+#### 3. SSH 连接到服务器
+
+```bash
+ssh jojo@tcloud
+```
+
+#### 4. 拉取最新代码
+
+```bash
+cd /home/jojo/project/hugo-jasjojo
+git pull origin main
+```
+
+#### 5. 构建静态网站
+
+```bash
+cd /home/jojo/project/hugo
+hugo
+```
+
+#### 6. 退出服务器
+
+```bash
+exit
+```
+
+### 完整部署脚本
+
+可以创建一个部署脚本 `deploy.sh`:
+
+```bash
+#!/bin/bash
+# 本地提交
+git add -A
+git commit -m "Deploy: $1"
+git push
+
+# 服务器部署
+ssh jojo@tcloud << 'ENDSSH'
+  cd /home/jojo/project/hugo-jasjojo
+  git pull origin main
+  cd /home/jojo/project/hugo
+  hugo
+ENDSSH
+```
+
+使用方法：
+```bash
+chmod +x deploy.sh
+./deploy.sh "部署说明"
+```
+
+### 部署检查
+
+部署完成后，访问 https://jasjojo.com/ 检查：
+- ✅ 首页是否正常加载
+- ✅ 新文章是否显示
+- ✅ 导航菜单是否正确
+- ✅ 分类和标签是否正常工作
+
 ## 下一步
 
 - 部署流程（待补充）
