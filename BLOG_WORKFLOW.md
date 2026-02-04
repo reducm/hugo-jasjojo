@@ -241,10 +241,11 @@ hugo list published
 
 ### 服务器信息
 
-- **服务器**: tcloud
+- **服务器**: tcloud (SSH别名: jas_tcloud)
 - **代码目录**: /home/jojo/project/hugo-jasjojo
-- **构建目录**: /home/jojo/project/hugo
-- **构建命令**: hugo
+- **Hugo可执行文件**: /home/jojo/project/hugo/hugo
+- **构建目录**: /home/jojo/project/hugo-jasjojo
+- **构建命令**: /home/jojo/project/hugo/hugo
 
 ### 部署步骤
 
@@ -264,6 +265,14 @@ git push
 
 #### 3. SSH 连接到服务器
 
+使用 SSH 别名连接（推荐）：
+
+```bash
+ssh jas_tcloud
+```
+
+或直接使用主机名：
+
 ```bash
 ssh jojo@tcloud
 ```
@@ -277,9 +286,11 @@ git pull origin main
 
 #### 5. 构建静态网站
 
+使用 Hugo 可执行文件构建：
+
 ```bash
-cd /home/jojo/project/hugo
-hugo
+cd /home/jojo/project/hugo-jasjojo
+/home/jojo/project/hugo/hugo
 ```
 
 #### 6. 退出服务器
@@ -300,11 +311,10 @@ git commit -m "Deploy: $1"
 git push
 
 # 服务器部署
-ssh jojo@tcloud << 'ENDSSH'
+ssh jas_tcloud << 'ENDSSH'
   cd /home/jojo/project/hugo-jasjojo
   git pull origin main
-  cd /home/jojo/project/hugo
-  hugo
+  /home/jojo/project/hugo/hugo
 ENDSSH
 ```
 
