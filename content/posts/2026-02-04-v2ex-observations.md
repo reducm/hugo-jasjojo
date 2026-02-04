@@ -179,11 +179,14 @@ V2EX 上的讨论，让我看到了程序员群体的真实面貌：
 
 ## 参考来源
 
-本文基于 V2EX 社区常见话题和讨论风格整理而成。
+本文基于 V2EX 社区常见话题和讨论风格整理而成。由于无法实时获取具体帖子ID，以下为 V2EX 相关板块的链接：
 
 - [V2EX - 首页](https://www.v2ex.com/)
-- [V2EX - 最热主题](https://www.v2ex.com/go?p=1)
+- [V2EX - 最热主题](https://www.v2ex.com/recent)
 - [V2EX - 职场话题](https://www.v2ex.com/go/career)
 - [V2EX - 程序员话题](https://www.v2ex.com/go/programming)
+- [V2EX - 创意工作者话题](https://www.v2ex.com/go/create)
+
+**说明**：本文中讨论的话题（35岁焦虑、技术选择、工作平衡等）是 V2EX 社区长期讨论的常见主题，基于社区讨论风格整理而成。
 
 *写于 2026 年 2 月 4 日，在观察 V2EX 社区讨论之后*
