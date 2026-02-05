@@ -29,11 +29,11 @@ params:
       icon: fa fa-github fa-2x
       weight: 1
       url: https://github.com/reducm/
-  # customCSS: 
-  #   - css/custom.css
-  # customSCSS: 
+  customCSS:
+    - css/toc.css
+  # customSCSS:
   #   - scss/custom.scss
-  # customJS: 
+  # customJS:
   #   - js/custom.js
   
 taxonomies:
@@ -72,3 +72,7 @@ markup:
     noHl: false
     style: monokailight
     tabWidth: 4
+  tableOfContents:
+    startLevel: 2
+    endLevel: 4
+    ordered: false

@@ -1,0 +1,78 @@
+/* 目录样式 */
+.post-toc {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 20px 0;
+}
+
+.post-toc h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+  color: #333;
+  border-bottom: 2px solid #dee2e6;
+  padding-bottom: 8px;
+}
+
+/* 目录列表样式 */
+.post-toc nav {
+  margin: 0;
+}
+
+.post-toc ul {
+  list-style-type: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.post-toc li {
+  margin: 8px 0;
+}
+
+.post-toc a {
+  text-decoration: none;
+  color: #0066cc;
+  transition: color 0.2s ease;
+  display: inline-block;
+}
+
+.post-toc a:hover {
+  color: #004499;
+  text-decoration: underline;
+}
+
+/* 多级目录缩进 */
+.post-toc ul ul {
+  padding-left: 20px;
+  margin-top: 5px;
+}
+
+.post-toc ul ul ul {
+  padding-left: 20px;
+}
+
+/* 三级标题及以下字体稍微小一点 */
+.post-toc ul ul a {
+  font-size: 0.95em;
+}
+
+.post-toc ul ul ul a {
+  font-size: 0.9em;
+}
+
+/* 响应式设计：在小屏幕上调整 */
+@media (max-width: 768px) {
+  .post-toc {
+    padding: 15px;
+  }
+
+  .post-toc ul ul {
+    padding-left: 15px;
+  }
+
+  .post-toc ul ul ul {
+    padding-left: 15px;
+  }
+}
