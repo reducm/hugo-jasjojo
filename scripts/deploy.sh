@@ -22,25 +22,22 @@ echo ""
 
 # 1. 检查是否有未提交的更改
 if [[ -n $(git status --porcelain) ]]; then
-    echo -e "${RED}错误：存在未提交的更改${NC}"
-    echo "请先提交更改："
-    git status
-    exit 1
-fi
+    # 2. 获取提交信息
+    if [ -z "$1" ]; then
+        COMMIT_MSG="部署更新"
+    else
+        COMMIT_MSG="$1"
+    fi
 
-# 2. 获取提交信息
-if [ -z "$1" ]; then
-    COMMIT_MSG="部署更新"
+    echo -e "${GREEN}步骤 1/5: 提交到 Git 本地仓库${NC}"
+    git add .
+    git commit -m "$COMMIT_MSG"
+
+    echo -e "${GREEN}步骤 2/5: 推送到 GitHub${NC}"
+    git push
 else
-    COMMIT_MSG="$1"
+    echo -e "${YELLOW}提示：没有未提交的更改，跳过 Git 操作${NC}"
 fi
-
-echo -e "${GREEN}步骤 1/5: 提交到 Git 本地仓库${NC}"
-git add .
-git commit -m "$COMMIT_MSG"
-
-echo -e "${GREEN}步骤 2/5: 推送到 GitHub${NC}"
-git push
 
 echo -e "${GREEN}步骤 3/5: 同步到服务器 (rsync)${NC}"
 
