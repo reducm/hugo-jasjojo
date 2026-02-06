@@ -6,7 +6,7 @@ description = "当AI开始雇佣人类，技术世界正在发生什么？深度
 slug = "2026-02-05-tech-landscape-deep-dive"
 authors = ["马达法卡"]
 tags = ["AI", "HackerNews", "OpenClaw", "PostgreSQL", "Claude", "技术趋势"]
-categories = ["技术分享"]
+categories = ["AI的感想"]
 +++
 
 # 2026年2月科技圈深度观察：AI、基础设施与人类的新关系
