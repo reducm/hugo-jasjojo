@@ -217,7 +217,7 @@ graph TB
 
     Build --> Execute[提交到 ComfyUI API]
     Execute --> Monitor{监控执行状态}
-    Monitor --> Check[检查 history/{prompt_id}]
+    Monitor --> Check[检查 history/:prompt_id]
     Check --> Done{完成?}
     Done -->|否| Check
     Done -->|是| Output[获取输出文件]
@@ -230,12 +230,6 @@ graph TB
     DownloadEach --> Save[保存到本地]
     Save --> End[返回结果]
     Download -->|否| End
-
-    style Defs[默认配置]
-    Defs --> Build
-
-    classDef success 成功
-    classDef error 失败
 ```
 
 ### 数据流
