@@ -1,7 +1,7 @@
 /* 右侧目录侧边栏样式 */
 .post-container {
   display: grid;
-  grid-template-columns: 1fr 320px;
+  grid-template-columns: minmax(auto, 1000px) 300px;
   gap: 2.5rem;
   max-width: 1400px;
   margin: 0 auto;
@@ -13,6 +13,12 @@
 }
 
 /* 左右布局响应式 */
+@media (max-width: 1400px) {
+  .post-container {
+    grid-template-columns: 1fr 300px;
+  }
+}
+
 @media (max-width: 1024px) {
   .post-container {
     grid-template-columns: 1fr;
