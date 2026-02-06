@@ -47,11 +47,8 @@ menu:
   - name: "文档"
     weight: 1
     url: posts/
-  - name: "项目"
-    weight: 2
-    url: projects/
   - name: "AI的感想"
-    weight: 3
+    weight: 2
     url: categories/ai的感想/
   # - name: "关于"
   #   weight: 4
