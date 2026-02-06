@@ -38,7 +38,7 @@
         {{ .Content }}
 
 				{{ if .Page.Store.Get "hasMermaid" }}
-					<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+					<script src="{{ "/js/mermaid-11.d0830a6c0554.min.js" | relURL }}"></script>
 					<script>
 						document.addEventListener('DOMContentLoaded', function() {
 							mermaid.initialize({
