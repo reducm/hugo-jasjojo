@@ -3,65 +3,77 @@
 {{ end }}
 {{ define "content" }}
   <section class="container post">
-    <article>
-      <header>
-        <div class="post-title">
-          <h1 class="title">
-            <a class="title-link" href="{{ .Permalink | safeURL }}">
-              {{ .Title }}
-            </a>
-          </h1>
-        </div>
-        <div class="post-meta">
-          <div class="date">
-            <span class="posted-on">
-              <i class="fa fa-calendar" aria-hidden="true"></i>
-              <time datetime="{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}">
-                {{ .Date | time.Format (.Site.Params.dateFormat | default "January 2, 2006" ) }}
-              </time>
-            </span>
-            <span class="reading-time">
-              <i class="fa fa-clock-o" aria-hidden="true"></i>
-              {{ i18n "reading_time" .ReadingTime }}
-            </span>
+    <div class="post-container">
+      <article>
+        <header>
+          <div class="post-title">
+            <h1 class="title">
+              <a class="title-link" href="{{ .Permalink | safeURL }}">
+                {{ .Title }}
+              </a>
+            </h1>
           </div>
-          {{ with .Page.Params.Authors }}{{ partial "taxonomy/authors.html" . }}{{ end }}
-          {{ with .Page.Params.Categories }}{{ partial "taxonomy/categories.html" . }}{{ end }}
-          {{ with .Page.Params.Tags }}{{ partial "taxonomy/tags.html" . }}{{ end }}
+          <div class="post-meta">
+            <div class="date">
+              <span class="posted-on">
+                <i class="fa fa-calendar" aria-hidden="true"></i>
+                <time datetime="{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}">
+                  {{ .Date | time.Format (.Site.Params.dateFormat | default "January 2, 2006" ) }}
+                </time>
+              </span>
+              <span class="reading-time">
+                <i class="fa fa-clock-o" aria-hidden="true"></i>
+                {{ i18n "reading_time" .ReadingTime }}
+              </span>
+            </div>
+            {{ with .Page.Params.Authors }}{{ partial "taxonomy/authors.html" . }}{{ end }}
+            {{ with .Page.Params.Categories }}{{ partial "taxonomy/categories.html" . }}{{ end }}
+            {{ with .Page.Params.Tags }}{{ partial "taxonomy/tags.html" . }}{{ end }}
+          </div>
+        </header>
+
+        <div>
+          {{ if .Params.featuredImage }}
+            <img src="{{ .Params.featuredImage | relURL }}" alt="Featured image"/>
+          {{ end }}
+
+          {{ .Content }}
+
+          {{ if .Page.Store.Get "hasMermaid" }}
+            <script src="{{ "/js/mermaid-11.d0830a6c0554.min.js" | relURL }}"></script>
+            <script>
+              document.addEventListener('DOMContentLoaded', function() {
+                mermaid.initialize({
+                  startOnLoad: false,
+                  theme: 'default',
+                  securityLevel: 'loose',
+                });
+                mermaid.run({
+                  querySelector: '.mermaid',
+                });
+              });
+            </script>
+          {{ end }}
         </div>
-      </header>
 
-      <div>
-        {{ if .Params.featuredImage }}
-          <img src="{{ .Params.featuredImage | relURL }}" alt="Featured image"/>
-        {{ end }}
-        {{ .Content }}
+        <footer>
+          {{ partial "posts/series.html" . }}
+          {{ partial "posts/disqus.html" . }}
+          {{ partial "posts/commento.html" . }}
+          {{ partial "posts/utterances.html" . }}
+        </footer>
+      </article>
 
-				{{ if .Page.Store.Get "hasMermaid" }}
-					<script src="{{ "/js/mermaid-11.d0830a6c0554.min.js" | relURL }}"></script>
-					<script>
-						document.addEventListener('DOMContentLoaded', function() {
-							mermaid.initialize({
-								startOnLoad: false,
-								theme: 'default',
-								securityLevel: 'loose',
-							});
-							mermaid.run({
-								querySelector: '.mermaid',
-							});
-						});
-					</script>
-				{{ end }}
-      </div>
-
-
-      <footer>
-        {{ partial "posts/series.html" . }}
-        {{ partial "posts/disqus.html" . }}
-        {{ partial "posts/commento.html" . }}
-        {{ partial "posts/utterances.html" . }}
-      </footer>
-    </article>
+      {{/* 右侧目录侧边栏 */}}
+      {{ if .TableOfContents }}
+      <aside class="toc-sidebar">
+        <h3>目录</h3>
+        <nav>
+          {{ .TableOfContents }}
+        </nav>
+      </aside>
+      {{ end }}
+    </div>
 
     {{ partial "posts/math.html" . }}
   </section>
