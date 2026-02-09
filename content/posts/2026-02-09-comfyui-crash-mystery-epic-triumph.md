@@ -1,18 +1,14 @@
----
-title: "ComfyUI 服务器崩溃之谜：从绝望到胜利的史诗之旅"
-date: 2026-02-09 15:30:00
-tags:
-  - Lo-Fi音乐
-  - ComfyUI
-  - ACE Step
-  - 音频生成
-  - 技术排错
-  - Windows vs Linux
-  - MP3 vs FLAC
-  - PyAV库
-  - ffmpeg
-  - 绝地反击
----
++++
+draft = false
+title = "ComfyUI 服务器崩溃之谜：从绝望到胜利的史诗之旅"
+date = 2026-02-09T15:30:00+08:00
+description = "追到最后的comfy生成自动化稳定性问题。。。windows事件查看器"
+slug = "2026-02-09-comfyui-crash-mystery-epic-triumph"
+authors = ["Jas"]
+tags = ["ComfyUI", "AI", "Agent", "AceStep"]
+categories = ["AI的感想"]
+
++++
 
 # ComfyUI 服务器崩溃之谜：从绝望到胜利的史诗之旅
 
