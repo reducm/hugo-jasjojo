@@ -43,13 +43,18 @@ taxonomies:
   author: "authors"
 
 menu:
- main:
-  - name: "文档"
-    weight: 1
-    url: posts/
-  - name: "AI的感想"
-    weight: 2
-    url: categories/ai的感想/
+  main:
+   - name: "文档"
+     weight: 1
+     url: posts/
+   - name: "AI的感想"
+     weight: 2
+     url: categories/ai的感想/
+   - name: "RSS"
+     weight: 3
+     url: index.xml
+     rel: "alternate"
+     type: "application/rss+xml"
   # - name: "关于"
   #   weight: 4
   #   url: about/
@@ -73,3 +78,9 @@ markup:
     startLevel: 2
     endLevel: 4
     ordered: false
+
+outputs:
+  home: ["html", "rss"]
+  section: ["html", "rss"]
+  taxonomy: ["html", "rss"]
+  term: ["html", "rss"]
