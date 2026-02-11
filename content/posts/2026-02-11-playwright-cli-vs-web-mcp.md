@@ -1,590 +1,493 @@
 ---
-title: "Playwright CLI 与 Google Web MCP 深度技术对比"
+title: "微软 Playwright CLI 与 Playwright MCP 深度技术对比"
 date: 2026-02-11T12:00:00+08:00
 draft: false
 categories: ["技术分享"]
-tags: ["Playwright", "Web MCP", "浏览器自动化", "AI工具"]
+tags: ["Playwright", "MCP", "浏览器自动化", "AI工具"]
 author: "jasjojo"
-description: "深入解析 Playwright CLI 和 Google Web MCP 的技术架构、实现原理及适用场景"
+description: "深入解析微软官方两个项目 Playwright CLI (@playwright/cli) 与 Playwright MCP (@playwright/mcp) 的技术架构、实现原理及双轨策略意图"
 ---
 
 ## 引言
 
-在 Web 自动化和 AI 集成日益融合的今天，开发者面临着多种工具和技术栈的选择。**Playwright CLI** 作为微软推出的浏览器自动化测试框架，已经成为现代 Web 测试的行业标准；而 **Model Context Protocol (MCP)**，特别是 Google 在 Web 自动化领域的 MCP 服务器实现，代表了 AI 与浏览器交互的新范式。
+2025年至2026年，AI Coding Agent 的爆发式发展正在重塑开发者工具的形态。微软作为浏览器自动化领域的领导者，其 Playwright 团队在这一波浪潮中推出了两个看似相似但定位截然不同的项目：**Playwright CLI** (`@playwright/cli`) 和 **Playwright MCP** (`@playwright/mcp`)。
 
-本文将深入剖析这两种技术的实现原理、架构设计和适用场景，帮助开发者在不同需求下做出明智的技术选型。
-
----
-
-## Playwright CLI 深度解析
-
-### 2.1 项目概览与最新版本
-
-**Playwright** 是由微软开发的开源浏览器自动化框架，最新版本 **v1.58**（截至 2026年2月）支持 Chromium 145、Firefox 146 和 WebKit 26。Playwright 的核心优势在于提供统一的 API 来驱动三种主流浏览器，实现真正的跨浏览器测试能力。
-
-```
-最新浏览器版本支持：
-- Chromium 145.0.7632.6 (Chrome for Testing)
-- Mozilla Firefox 146.0.1  
-- WebKit 26.0
-```
-
-### 2.2 架构设计
-
-Playwright 采用**进程外(Out-of-Process)执行架构**，这一设计决策是其区别于传统浏览器自动化工具的关键：
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    Playwright Test Runner                    │
-│                     (Node.js/Python/Java)                   │
-└────────────────────┬────────────────────────────────────────┘
-                     │ WebSocket/ pipes
-                     ▼
-┌─────────────────────────────────────────────────────────────┐
-│                   Playwright Driver Process                  │
-│              (Handles protocol translation)                  │
-└────────────────────┬────────────────────────────────────────┘
-                     │ Chrome DevTools Protocol / CDP
-                     ▼
-┌──────────┐  ┌──────────┐  ┌──────────┐
-│Chromium  │  │ Firefox  │  │ WebKit   │
-│  (CDP)   │  │ (Juggler)│  │ (WPE)    │
-└──────────┘  └──────────┘  └──────────┘
-```
-
-#### 核心架构特点：
-
-1. **多进程隔离**：Playwright 运行测试脚本在与浏览器不同的进程中，避免了传统 in-process 测试运行器的内存限制和稳定性问题
-2. **Browser Context 模型**：每个测试运行在独立的 Browser Context 中（相当于全新的浏览器配置文件），提供完全隔离的测试环境
-3. **自动等待机制(Auto-wait)**：Playwright 在执行操作前自动等待元素可交互，消除因时序问题导致的 flaky tests
-
-### 2.3 命令行体系
-
-Playwright CLI 提供了丰富的命令行接口：
-
-```bash
-# 核心命令
-npx playwright test              # 运行测试
-npx playwright codegen <url>     # 录制生成测试代码
-npx playwright install           # 安装浏览器
-npx playwright show-report       # 展示测试报告
-npx playwright ui                # 交互式UI模式
-```
-
-#### 关键 CLI 参数解析：
-
-| 参数 | 功能 | 应用场景 |
-|------|------|----------|
-| `--headed` |  headed 模式运行 | 调试可视化 |
-| `--debug` | 启动 Inspector 调试 | 深度调试 |
-| `--ui` | 交互式 UI 模式 | 开发测试 |
-| `--workers=N` | 并行工作进程数 | CI/CD 优化 |
-| `--project=<name>` | 指定项目配置 | 多浏览器测试 |
-| `--trace=on` | 启用执行追踪 | 故障排查 |
-| `--update-snapshots` | 更新截图快照 | 视觉回归测试 |
-
-### 2.4 浏览器控制机制
-
-Playwright 通过以下方式控制浏览器：
-
-#### Chrome DevTools Protocol (CDP)
-对于 Chromium/Chrome 浏览器，Playwright 使用 CDP 进行底层控制：
-
-```javascript
-// 连接到已运行的 Chrome 实例
-const browser = await chromium.connectOverCDP('http://localhost:9222');
-```
-
-CDP 是 Chrome 提供的 JSON-RPC 协议，支持：
-- DOM 操作与检查
-- 网络拦截与监控
-- JavaScript 执行
-- 性能分析
-- 屏幕截图与 PDF 生成
-
-#### Firefox 与 WebKit 适配
-Playwright 团队为 Firefox 开发了 **Juggler** 协议适配层，为 WebKit 基于 **WPE** 实现了类似的协议支持，确保 API 一致性。
-
-### 2.5 核心功能详解
-
-#### Codegen（代码生成器）
-Playwright 的 `codegen` 功能可以记录用户在浏览器中的操作并生成对应的测试代码：
-
-```bash
-npx playwright codegen https://example.com
-```
-
-生成的代码示例：
-```javascript
-import { test, expect } from '@playwright/test';
-
-test('test', async ({ page }) => {
-  await page.goto('https://example.com/');
-  await page.getByRole('link', { name: 'More information...' }).click();
-  await expect(page).toHaveURL(/.*iana.org/);
-});
-```
-
-#### Trace Viewer（执行追踪）
-Playwright 的追踪功能捕获测试执行的完整上下文：
-- 屏幕录像
-- 实时 DOM 快照
-- 网络请求记录
-- 控制台日志
+这两个项目都致力于让 AI 能够控制浏览器，但采用了完全不同的技术路径。本文将深入剖析它们的架构设计、实现原理、适用场景，以及微软背后的战略意图。
 
 ---
 
-## Google Web MCP 深度解析
+## 一、研究对象：两个微软官方仓库
 
-### 3.1 Model Context Protocol 概述
+### 1.1 Playwright CLI
 
-**Model Context Protocol (MCP)** 是由 Anthropic 提出并开源的标准协议，现由 Linux Foundation 托管。它定义了 AI 应用程序与外部数据源、工具之间的通信标准。
+**GitHub 仓库**: https://github.com/microsoft/playwright-cli
 
-MCP 的核心理念是：**"就像 USB-C 为电子设备提供标准化连接一样，MCP 为 AI 应用提供标准化的外部系统连接方式"**。
+**npm 包名**: `@playwright/cli`
 
-### 3.2 协议架构
+Playwright CLI 是一个独立的命令行工具，它提供了基于 **SKILLS** 概念的浏览器自动化能力。与大多数人熟知的 `npx playwright` 命令不同（那是 Playwright 测试框架本身的 CLI），`@playwright/cli` 是一个专门为现代 Coding Agents 设计的独立工具包。
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                      MCP Client (AI Application)                 │
-│                     (Claude / ChatGPT / Custom)                  │
-└──────────────────────┬──────────────────────────────────────────┘
-                       │ JSON-RPC 2.0 over stdio / SSE
-                       ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                       MCP Server (Host Process)                  │
-│                                                                  │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐        │
-│  │  Tools   │  │ Resources│  │ Prompts  │  │ Sampling │        │
-│  └──────────┘  └──────────┘  └──────────┘  └──────────┘        │
-└──────────────────────┬──────────────────────────────────────────┘
-                       │
-         ┌─────────────┼─────────────┐
-         ▼             ▼             ▼
-   ┌──────────┐ ┌──────────┐ ┌──────────┐
-   │Filesystem│ │  Fetch   │ │  Puppet  │
-   │  Server  │ │  Server  │ │  Server  │
-   └──────────┘ └──────────┘ └──────────┘
-```
+根据官方 README 的描述：
 
-### 3.3 协议规范详解
+> *"Playwright CLI with SKILLS - This package provides CLI interface into Playwright. If you are using coding agents, that is the best fit."*
 
-MCP 使用 **JSON-RPC 2.0** 作为通信协议，当前协议版本为 **2025-06-18**。
+核心特点：
+- 使用 **SKILLS** 概念（通过 `.claude/skills/` 目录安装）
+- 底层调用 `playwright/lib/mcp/terminal/program`
+- **Token-efficient**：避免将大型 tool schemas 和 accessibility trees 加载到模型上下文
+- 支持会话管理（Sessions），可在多个独立浏览器实例间切换
 
-#### 核心能力声明
+### 1.2 Playwright MCP
 
-服务器在初始化时声明支持的能力：
+**GitHub 仓库**: https://github.com/microsoft/playwright-mcp
 
-```json
-{
-  "capabilities": {
-    "tools": {
-      "listChanged": true
-    },
-    "resources": {
-      "subscribe": true,
-      "listChanged": true
-    },
-    "prompts": {
-      "listChanged": true
-    }
-  }
-}
-```
+**npm 包名**: `@playwright/mcp`
 
-#### Tools（工具调用）
+Playwright MCP 是一个 Model Context Protocol 服务器实现，它将 Playwright 的浏览器自动化能力封装为 MCP 工具集，供任何支持 MCP 的 AI 客户端调用。
 
-Tools 是 MCP 最核心的功能，允许 AI 调用外部工具：
+根据官方 README 的描述：
 
-**请求示例：**
-```json
-{
-  "jsonrpc": "2.0",
-  "id": 1,
-  "method": "tools/list",
-  "params": {}
-}
-```
+> *"A Model Context Protocol (MCP) server that provides browser automation capabilities using Playwright. This server enables LLMs to interact with web pages through structured accessibility snapshots, bypassing the need for screenshots or visually-tuned models."*
 
-**Tool 定义结构：**
-```json
-{
-  "name": "get_weather",
-  "title": "Weather Information Provider",
-  "description": "Get current weather information for a location",
-  "inputSchema": {
-    "type": "object",
-    "properties": {
-      "location": {
-        "type": "string",
-        "description": "City name or zip code"
-      }
-    },
-    "required": ["location"]
-  }
-}
-```
-
-### 3.4 Web MCP 服务器实现
-
-在 Web 自动化领域，MCP 社区提供了多种服务器实现：
-
-#### Puppeteer MCP Server
-Puppeteer 官方 MCP 服务器实现，基于 Chrome DevTools Protocol：
-
-```typescript
-// MCP Server 工具示例
-{
-  "name": "puppeteer_navigate",
-  "description": "Navigate to a URL",
-  "inputSchema": {
-    "type": "object",
-    "properties": {
-      "url": { "type": "string" },
-      "waitUntil": { 
-        "type": "string",
-        "enum": ["load", "domcontentloaded", "networkidle0", "networkidle2"]
-      }
-    },
-    "required": ["url"]
-  }
-}
-```
-
-#### Fetch MCP Server
-用于 Web 内容获取和转换：
-
-```json
-{
-  "name": "fetch_url",
-  "description": "Fetch and extract content from a URL",
-  "inputSchema": {
-    "type": "object",
-    "properties": {
-      "url": { "type": "string" },
-      "extractMode": { 
-        "type": "string",
-        "enum": ["markdown", "text"]
-      }
-    }
-  }
-}
-```
-
-### 3.5 与 Chrome DevTools Protocol 的关系
-
-Web MCP 服务器通常基于 CDP 构建浏览器控制能力：
-
-```
-AI Client (Claude/GPT)
-         │
-         │ MCP Protocol (JSON-RPC)
-         ▼
-    MCP Server
-         │
-         │ Puppeteer / Playwright Library
-         ▼
-    Chrome DevTools Protocol
-         │
-         ▼
-      Chromium
-```
-
-这种分层架构的优势：
-- **解耦**：AI 应用无需了解浏览器底层细节
-- **标准化**：统一接口，易于扩展和维护
-- **安全**：通过 MCP 的权限控制实现安全沙箱
+核心特点：
+- 完整的 **MCP 服务器**实现
+- 使用 **accessibility snapshots**（结构化数据）与页面交互
+- **不需要 vision models**：纯粹在结构化数据上操作
+- 包含浏览器扩展（`packages/extension`）用于连接现有浏览器实例
+- 支持持久会话和丰富的页面内省能力
 
 ---
 
-## 技术对比分析
+## 二、核心问题：为什么微软要出两个项目？
 
-### 4.1 核心差异对比表
+这是理解微软双轨策略的关键问题。两个项目的官方 README 中都有一节专门回答这个问题——**"Playwright CLI vs Playwright MCP"**。
 
-| 维度 | Playwright CLI | Google Web MCP |
+### 2.1 CLI 路径：Token-Efficient 的高吞吐量方案
+
+根据官方 README 的明确说明：
+
+> *"CLI: Modern coding agents increasingly favor CLI–based workflows exposed as SKILLs over MCP because CLI invocations are more token-efficient: they avoid loading large tool schemas and verbose accessibility trees into the model context, allowing agents to act through concise, purpose-built commands."*
+
+**核心论点**：
+- 现代 Coding Agents 越来越偏爱 **CLI-based workflows + SKILLS**
+- CLI 调用更加 **token-efficient**
+- 避免了将 **大型 tool schemas** 和 **verbose accessibility trees** 加载到模型上下文
+- 通过简洁、专用的命令让 Agents 执行操作
+
+**适用场景**：
+> *"This makes CLI + SKILLs better suited for high-throughput coding agents that must balance browser automation with large codebases, tests, and reasoning within limited context windows."*
+
+- 需要在有限上下文窗口中平衡浏览器自动化、大型代码库、测试和推理的 **高吞吐量 coding agents**
+- 开发者需要在同一个会话中频繁切换浏览器操作和代码编辑的场景
+
+### 2.2 MCP 路径：持久状态与丰富内省
+
+同样来自官方 README：
+
+> *"MCP: MCP remains relevant for specialized agentic loops that benefit from persistent state, rich introspection, and iterative reasoning over page structure, such as exploratory automation, self-healing tests, or long-running autonomous workflows where maintaining continuous browser context outweighs token cost concerns."*
+
+**核心论点**：
+- MCP 适合需要 **持久状态**、**丰富内省**、**迭代推理页面结构** 的专门 agentic loops
+- 具体场景包括：**探索性自动化**、**自修复测试**、**长运行自主工作流**
+- 在这些场景中，维护连续的浏览器上下文比 token 成本更重要
+
+**适用场景**：
+- AI 需要深度理解页面结构并进行多轮交互的场景
+- 需要保持登录状态、购物车内容等上下文的长周期任务
+- 需要频繁获取页面 accessibility tree 进行决策的智能代理
+
+### 2.3 微软的双轨策略意图
+
+微软推出两个项目并非重复造轮子，而是一种**精准覆盖不同使用场景**的战略布局：
+
+| 维度 | Playwright CLI | Playwright MCP |
 |------|----------------|----------------|
-| **定位** | 浏览器自动化测试框架 | AI 应用与外部系统的连接协议 |
-| **主导方** | Microsoft | Anthropic / Linux Foundation |
-| **协议基础** | CDP (Chrome DevTools Protocol) | JSON-RPC 2.0 |
-| **通信方式** | 进程间通信 / WebSocket | stdio / Server-Sent Events |
-| **浏览器支持** | Chromium, Firefox, WebKit | 依赖底层实现（通常 Chromium） |
-| **主要用户** | 测试工程师、开发者 | AI 应用开发者、Agent 构建者 |
-| **使用模式** | 命令行 / 编程 API | AI 模型自主调用 |
-| **代码生成** | 内置 codegen 录制 | 依赖 AI 模型生成 |
-| **测试能力** | 完整的测试生命周期管理 | 需配合测试框架使用 |
-| **视觉回归** | 原生支持截图对比 | 需通过工具调用实现 |
-| **并行执行** | 内置多 worker 支持 | 依赖服务器实现 |
-| **调试工具** | Inspector, Trace Viewer, UI Mode | 依赖客户端实现 |
+| **核心优化目标** | Token 效率 | 状态持久与丰富内省 |
+| **主要用户** | Coding Agents (Claude Code, Copilot) | AI 客户端 (Claude Desktop, Cursor, Windsurf) |
+| **上下文消耗** | 低（精简命令） | 较高（accessibility snapshots） |
+| **状态管理** | 会话级别持久 | 细粒度上下文控制 |
+| **最佳场景** | 高吞吐量、频繁切换 | 深度交互、长周期任务 |
 
-### 4.2 架构层次对比
-
-```
-应用层:
-  Playwright:   测试脚本 (TypeScript/Python/Java)
-  MCP:          AI Agent / LLM Application
-
-协议层:
-  Playwright:   Playwright Protocol (基于 CDP)
-  MCP:          Model Context Protocol (JSON-RPC)
-
-传输层:
-  Playwright:   WebSocket / pipes
-  MCP:          stdio / SSE (Server-Sent Events)
-
-控制层:
-  Playwright:   CDP / Juggler / WPE Protocol
-  MCP:          CDP (via Puppeteer/Playwright lib)
-
-浏览器层:
-  Playwright:   Chromium / Firefox / WebKit
-  MCP:          Chromium (主要)
-```
-
-### 4.3 功能矩阵对比
-
-| 功能 | Playwright CLI | Web MCP |
-|------|----------------|---------|
-| 跨浏览器测试 | ✅ 原生支持 | ⚠️ 依赖实现 |
-| 元素定位 | ✅ 强大的 Selector 引擎 | ⚠️ 依赖底层库 |
-| 自动等待 | ✅ Web-first assertions | ⚠️ 需手动实现 |
-| 网络拦截 | ✅ 路由(Route)机制 | ✅ 通过工具 |
-| 截图/PDF | ✅ 原生 API | ✅ 通过工具 |
-| 移动设备模拟 | ✅ 设备配置文件 | ⚠️ 依赖 CDP |
-| 性能分析 | ✅ 内置 Trace | ⚠️ 需扩展 |
-| AI 原生集成 | ❌ | ✅ 核心设计目标 |
-| 代码录制 | ✅ Codegen | ❌ |
-| 测试报告 | ✅ HTML/JUnit/JSON | ❌ |
-| 并行执行 | ✅ Workers | ⚠️ 依赖实现 |
+这种双轨策略体现了微软对 AI 时代开发者工具演进的深刻理解：**没有一刀切的解决方案**，不同的 AI 工作负载需要不同的交互模式。
 
 ---
 
-## 适用场景分析
+## 三、Web MCP 的技术优势：相比视觉/源代码操控
 
-### 5.1 选择 Playwright CLI 的场景
+Playwright MCP 的官方 README 明确阐述了其相比传统方法（基于截图的视觉模型或原始源代码分析）的三大核心优势：
 
-#### 场景一：企业级 Web 测试
+### 3.1 Fast and lightweight（快速且轻量）
+
+> *"Fast and lightweight. Uses Playwright's accessibility tree, not pixel-based input."*
+
+传统基于视觉的浏览器自动化依赖像素级输入（截图），这带来两个问题：
+- **性能开销**：需要渲染页面、捕获截图、编码传输
+- **资源消耗**：视觉模型需要处理大量像素数据
+
+Playwright MCP 直接使用 Playwright 的 **accessibility tree**——这是浏览器内部维护的页面结构语义表示。它包含了元素的角色（role）、名称（accessible name）、状态等关键信息，但体积远小于截图。
+
+### 3.2 LLM-friendly（对大语言模型友好）
+
+> *"LLM-friendly. No vision models needed, operates purely on structured data."*
+
+这是 MCP 方案的革命性优势：
+- **不需要 vision models**：纯文本交互即可操作浏览器
+- **结构化数据操作**：LLM 天生擅长理解和生成结构化数据
+- **成本效益**：避免调用昂贵的多模态模型 API
+
+Accessibility snapshot 的示例格式：
 ```
-需求：
-- 需要测试多种浏览器（Chrome, Firefox, Safari）
-- 需要集成到 CI/CD 流水线
-- 需要生成详细的测试报告
-- 团队有专业 QA 工程师
-
-推荐：Playwright CLI
-原因：
-- 原生支持多浏览器并行测试
-- 丰富的断言和自动等待机制
-- 完善的测试生命周期管理
-- 强大的调试和报告工具
-```
-
-#### 场景二：视觉回归测试
-```
-需求：
-- 需要比较 UI 截图差异
-- 需要管理截图快照版本
-- 需要跨环境一致性验证
-
-推荐：Playwright CLI
-原因：
-- toHaveScreenshot() 原生支持
-- 自动快照更新机制
-- 像素级差异对比
+- heading "Welcome to Our Store" [level=1]
+- text: Find the best products at unbeatable prices.
+- link "Shop Now" [ref=e11]
+- searchbox "Search products" [ref=e12]
+- button "Search" [ref=e13]
 ```
 
-#### 场景三：复杂用户流程自动化
-```
-需求：
-- 需要录制复杂用户操作
-- 需要处理 iframe、Shadow DOM
-- 需要模拟多标签页交互
+这种格式对 LLM 极其友好——它清晰地表达了页面结构，每个可交互元素都有唯一的引用 ID（如 `e11`、`e12`），AI 可以直接通过这些 ID 执行操作。
 
-推荐：Playwright CLI
-原因：
-- Codegen 录制功能
-- 强大的元素定位能力
-- 多上下文(Context)管理
-```
+### 3.3 Deterministic tool application（确定性的工具应用）
 
-### 5.2 选择 Web MCP 的场景
+> *"Deterministic tool application. Avoids ambiguity common with screenshot-based approaches."*
 
-#### 场景一：AI Agent 浏览器操作
-```
-需求：
-- 需要让 AI 自主浏览网页
-- 需要从网页提取信息供 AI 分析
-- 需要 AI 自动完成表单填写
+基于截图的方法存在固有的歧义问题：
+- 视觉模型可能误判元素位置
+- 动态内容（动画、弹窗）可能导致识别失败
+- 坐标点击在响应式布局中容易失效
 
-推荐：Web MCP Server
-原因：
-- AI 原生设计，自然语言交互
-- 工具调用语义清晰
-- 易于与 LLM 系统集成
-```
-
-#### 场景二：智能数据分析助手
-```
-需求：
-- AI 需要访问多个数据源
-- 需要结合网页数据和企业内部数据
-- 需要提供统一的访问接口
-
-推荐：Web MCP + 其他 MCP Servers
-原因：
-- 统一的 MCP 协议标准
-- 易于组合多个数据源
-- 标准化权限管理
-```
-
-#### 场景三：快速原型开发
-```
-需求：
-- 需要快速验证 AI + 浏览器概念
-- 不想编写大量自动化代码
-- 需要灵活的交互方式
-
-推荐：Web MCP Server
-原因：
-- 配置简单，即插即用
-- AI 自动生成操作序列
-- 无需编写测试断言
-```
-
-### 5.3 混合使用场景
-
-在实际项目中，两者可以协同工作：
-
-```
-┌─────────────────────────────────────────────────────────┐
-│                    AI Agent (MCP Client)                 │
-│                      (Claude / GPT)                      │
-└────────────────────────┬────────────────────────────────┘
-                         │ MCP Protocol
-                         ▼
-┌─────────────────────────────────────────────────────────┐
-│                Custom MCP Server Gateway                 │
-│                                                          │
-│   ┌─────────────┐    ┌─────────────┐    ┌──────────┐   │
-│   │ Web Search  │    │ File System │    │Database  │   │
-│   │   Server    │    │   Server    │    │  Server  │   │
-│   └─────────────┘    └─────────────┘    └──────────┘   │
-│                                                          │
-│   ┌─────────────────────────────────────────────────┐   │
-│   │     Playwright MCP Server (Browser Control)      │   │
-│   │         - 封装 Playwright Library                │   │
-│   │         - 暴露浏览器操作工具                      │   │
-│   └─────────────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────────────┘
-                         │
-                         ▼
-                  Playwright Library
-                         │
-                         ▼
-                Chrome DevTools Protocol
-                         │
-                         ▼
-                     Chromium
-```
-
-这种架构结合了：
-- **MCP** 的标准化和 AI 原生优势
-- **Playwright** 的强大浏览器控制能力
+基于 accessibility tree 的方法则是**确定性的**：
+- 每个元素有唯一的 `ref` 标识
+- 元素定位基于语义而非像素坐标
+- 不受视觉变化（CSS 调整、主题切换）影响
 
 ---
 
-## 结论与展望
+## 四、架构对比与实现原理
 
-### 6.1 核心结论
+### 4.1 Playwright CLI 架构
 
-**Playwright CLI** 和 **Web MCP** 代表了 Web 自动化领域的两种不同范式：
+```
+┌─────────────────────────────────────────────────────────────┐
+│                   Coding Agent (Claude Code)                 │
+│                      或 GitHub Copilot                       │
+└────────────────────────┬────────────────────────────────────┘
+                         │ 调用 CLI 命令
+                         ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    @playwright/cli                           │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐  │
+│  │   Skills    │  │   Command   │  │    Session Mgr      │  │
+│  │  (.claude/  │  │   Parser    │  │  (多浏览器实例管理)   │  │
+│  │  skills/)   │  │             │  │                     │  │
+│  └─────────────┘  └──────┬──────┘  └─────────────────────┘  │
+└──────────────────────────┼───────────────────────────────────┘
+                           │
+                           ▼
+┌─────────────────────────────────────────────────────────────┐
+│           playwright/lib/mcp/terminal/program                │
+│              (底层 Playwright 调用接口)                       │
+└──────────────────────────┬───────────────────────────────────┘
+                           │ CDP / Playwright Protocol
+                           ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    Chromium / Firefox                        │
+└─────────────────────────────────────────────────────────────┘
+```
 
-| 对比维度 | 结论 |
-|----------|------|
-| **成熟度** | Playwright 更成熟，MCP 正在快速发展 |
-| **生态系统** | Playwright 有更丰富的测试生态；MCP 有更广泛的 AI 集成生态 |
-| **技术栈** | Playwright 是垂直解决方案；MCP 是横向连接协议 |
-| **学习曲线** | Playwright 需要学习测试概念；MCP 更接近自然语言编程 |
+**关键设计决策**：
+1. **Skills 系统**：通过 `.claude/skills/` 目录安装预定义的指令模板，让 Agent 知道如何正确使用 CLI
+2. **会话隔离**：通过 `-s=<session>` 参数支持多个独立的浏览器实例，每个实例有自己的存储状态
+3. **精简输出**：避免返回完整的 accessibility tree，而是返回命令执行结果的状态摘要
 
-### 6.2 技术选型建议
+### 4.2 Playwright MCP 架构
 
-- **如果你是 QA 工程师或测试开发者**：选择 **Playwright CLI**，它提供了完整的测试框架和丰富的调试工具。
+```
+┌─────────────────────────────────────────────────────────────┐
+│              MCP Client (Claude Desktop / Cursor)            │
+└────────────────────────┬────────────────────────────────────┘
+                         │ MCP Protocol (JSON-RPC / stdio)
+                         ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    @playwright/mcp                           │
+│  ┌──────────────────────────────────────────────────────┐  │
+│  │                  MCP Server Core                      │  │
+│  │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ │  │
+│  │  │ browser_ │ │ browser_ │ │ browser_ │ │ browser_ │ │  │
+│  │  │navigate  │ │snapshot  │ │  click   │ │  type    │ │  │
+│  │  └──────────┘ └──────────┘ └──────────┘ └──────────┘ │  │
+│  └────────────────────────┬─────────────────────────────┘  │
+│                           │ Accessibility Snapshots        │
+└───────────────────────────┼────────────────────────────────┘
+                            │ Playwright Library
+                            ▼
+┌─────────────────────────────────────────────────────────────┐
+│              Chromium Accessibility Tree                     │
+└─────────────────────────────────────────────────────────────┘
+```
 
-- **如果你是 AI 应用开发者**：选择 **Web MCP**，它让 AI 模型能够自然地与浏览器交互。
+**关键设计决策**：
+1. **MCP 协议兼容**：完全符合 Model Context Protocol 规范，可与任何 MCP 客户端集成
+2. **Accessibility Snapshots**：每次操作后返回页面的结构化快照，供 LLM 理解当前状态
+3. **工具丰富度**：提供 30+ 个浏览器操作工具，从基本的点击、输入到网络拦截、PDF 生成
 
-- **如果你的项目同时涉及测试和 AI**：考虑构建 **Playwright-based MCP Server**，结合两者优势。
+### 4.3 核心实现差异
 
-### 6.3 未来展望
+| 对比维度 | Playwright CLI | Playwright MCP |
+|----------|----------------|----------------|
+| **交互模式** | 命令行调用 (one-shot) | 协议通信 (持续会话) |
+| **返回数据** | 命令执行结果（精简） | Accessibility snapshot（结构化） |
+| **状态管理** | 会话级别（文件系统） | 细粒度（内存中 + 可持久化） |
+| **技能系统** | 依赖外部 .claude/skills/ | 内置于工具描述 |
+| **扩展方式** | CLI 参数 | MCP 配置 + 浏览器扩展 |
+| **浏览器连接** | 直接启动或 CDP | 直接启动、CDP、或浏览器扩展 |
 
-随着 AI Agent 技术的发展，我们可以预见以下趋势：
+### 4.4 共享的底层能力
 
-1. **融合趋势**：Playwright 可能增加 MCP 兼容层，让测试脚本也能被 AI 调用
-2. **协议标准化**：MCP 可能成为 AI 与外部系统交互的事实标准
-3. **智能化测试**：AI 将能够自主编写、维护和优化 Playwright 测试脚本
-4. **无代码自动化**：通过自然语言描述，AI 自动生成和维护自动化流程
+有趣的是，两个项目都依赖于 Playwright 的核心库，甚至 CLI 的底层实现直接调用了 `playwright/lib/mcp/terminal/program`——这表明 MCP 的设计理念已经渗透到了 Playwright 的核心架构中。
 
-### 6.4 参考资源
+CLI 的部分代码路径：
+```
+playwright-cli command → playwright/lib/mcp/terminal/program → Playwright Core → Browser
+```
 
-**Playwright 官方资源：**
-- GitHub: https://github.com/microsoft/playwright
-- 文档: https://playwright.dev
-- API 参考: https://playwright.dev/docs/api/class-playwright
+MCP 的代码路径：
+```
+MCP Client → @playwright/mcp server → Playwright Core → Browser
+```
 
-**MCP 官方资源：**
-- 官网: https://modelcontextprotocol.io
-- 协议规范: https://modelcontextprotocol.io/specification/
-- GitHub 组织: https://github.com/modelcontextprotocol
-- Servers 仓库: https://github.com/modelcontextprotocol/servers
-
-**Chrome DevTools Protocol：**
-- 官方文档: https://chromedevtools.github.io/devtools-protocol/
-- 协议定义: https://github.com/ChromeDevTools/devtools-protocol
+这种架构设计确保了：
+1. **功能一致性**：两个项目底层能力保持同步
+2. **维护效率**：核心修复同时惠及两个项目
+3. **生态整合**：Skills 和 Tools 可以共享底层逻辑
 
 ---
 
-## 附录：快速命令参考
+## 五、使用场景深度分析
 
-### Playwright CLI 速查表
+### 5.1 Playwright CLI 最佳场景
+
+#### 场景一：高吞吐量 Coding Workflow
 
 ```bash
-# 初始化项目
-npm init playwright@latest
-
-# 运行测试
-npx playwright test                    # 运行所有测试
-npx playwright test --ui              # UI 模式
-npx playwright test --headed          # 有头模式
-npx playwright test --debug           # 调试模式
-
-# 代码生成
-npx playwright codegen example.com
-
-# 浏览器管理
-npx playwright install                # 安装所有浏览器
-npx playwright install chromium       # 仅安装 Chromium
-npx playwright show-report            # 显示报告
+# 开发者一边写代码，一边让 AI 检查网页效果
+claude "请用 playwright-cli 打开 http://localhost:3000 并验证登录表单是否能正常工作"
 ```
 
-### MCP Server 开发速查
+在这个场景中：
+- AI 需要快速执行浏览器操作
+- 然后立即回到代码编辑任务
+- 不需要深入分析页面结构
+- Token 效率是关键
+
+#### 场景二：批量测试执行
 
 ```bash
-# 安装 TypeScript SDK
-npm install @modelcontextprotocol/sdk
+# 在 CI/CD 中快速验证多个页面
+playwright-cli open https://example.com/page1
+playwright-cli screenshot
+playwright-cli open https://example.com/page2
+playwright-cli screenshot
+```
 
-# 运行参考服务器
-npx @modelcontextprotocol/server-filesystem /path/to/files
+CLI 的轻量级特性使其适合批量、快速的任务执行。
 
-# 注册服务器到 Claude Desktop
-# 编辑 ~/Library/Application Support/Claude/claude_desktop_config.json
+#### 场景三：多项目会话管理
+
+```bash
+# 同时处理多个项目，每个项目有独立的浏览器状态
+playwright-cli -s=project-a open https://app.project-a.com
+playwright-cli -s=project-b open https://app.project-b.com
+playwright-cli list  # 查看所有会话
+```
+
+### 5.2 Playwright MCP 最佳场景
+
+#### 场景一：探索性自动化
+
+当 AI 需要理解一个未知网站的结构并执行复杂任务时：
+
+```
+AI: browser_navigate → 获取 snapshot → 分析结构 → 
+    browser_click → 获取新 snapshot → 
+    browser_type → 获取 snapshot → 
+    验证结果
+```
+
+每一轮交互都包含完整的页面状态，让 AI 能够迭代推理。
+
+#### 场景二：自修复测试
+
+```javascript
+// AI 检测到测试失败
+// 获取 accessibility snapshot 分析问题
+// 自动调整选择器或等待条件
+// 重试直到通过
+```
+
+MCP 提供的丰富内省能力使这种自修复成为可能。
+
+#### 场景三：长运行自主工作流
+
+```
+1. AI 登录电商网站（保持会话）
+2. 浏览多个商品页面（连续上下文）
+3. 添加到购物车（状态累积）
+4. 结算流程（多步骤依赖）
+```
+
+这种场景需要维护连续的浏览器上下文，MCP 的设计更适合。
+
+### 5.3 选择决策树
+
+```
+是否需要 AI 深度理解页面结构？
+├── 是 → 需要 accessibility snapshots → 选择 MCP
+└── 否 → 是否追求 Token 效率？
+    ├── 是 → 需要高吞吐量 → 选择 CLI
+    └── 否 → 集成环境支持？
+        ├── MCP 客户端 → 选择 MCP
+        └── 命令行环境 → 选择 CLI
+```
+
+---
+
+## 六、技术细节与实现原理
+
+### 6.1 Accessibility Tree 是如何工作的？
+
+Playwright 的 `page.accessibility.snapshot()` 方法会返回页面的可访问性树，这是一个语义化的页面表示：
+
+```javascript
+// 获取 snapshot
+const snapshot = await page.accessibility.snapshot();
+
+// 返回结构示例
 {
-  "mcpServers": {
-    "filesystem": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/files"]
-    }
-  }
+  role: 'WebArea',
+  name: 'Example Domain',
+  children: [
+    { role: 'heading', name: 'Example Domain', level: 1 },
+    { role: 'paragraph', name: 'This domain is for use in illustrative examples...' },
+    { role: 'link', name: 'More information...', ref: 'e11' }
+  ]
 }
 ```
 
+MCP 在此基础上为每个可交互元素分配了唯一的 `ref`（如 `e11`），AI 可以通过这个引用精确定位元素。
+
+### 6.2 CLI 的 Token 效率是如何实现的？
+
+CLI 的 token 效率来自几个设计决策：
+
+1. **固定命令集**：预先定义的命令集合，不需要动态描述工具 schema
+2. **精简输出**：默认不返回 accessibility tree，只返回操作结果状态
+3. **Skills 预加载**：通过 `.claude/skills/` 将使用说明外置，不占用每次调用的上下文
+
+对比 MCP 的 tool schema：
+```json
+{
+  "name": "browser_click",
+  "description": "Perform click on a web page",
+  "inputSchema": { /* 完整的 JSON Schema */ }
+}
+```
+
+CLI 的命令调用：
+```bash
+playwright-cli click e11
+```
+
+后者显然消耗更少的 token。
+
+### 6.3 浏览器扩展机制
+
+Playwright MCP 包含一个浏览器扩展（`packages/extension`），这是一个关键差异化特性：
+
+```
+┌──────────────┐      ┌──────────────┐      ┌──────────────┐
+│  MCP Client  │ ←──→ │ MCP Server   │ ←──→ │   Browser    │
+│              │      │              │      │  Extension   │
+└──────────────┘      └──────────────┘      └──────────────┘
+                                                      │
+                                                      ▼
+                                              ┌──────────────┐
+                                              │   Existing   │
+                                              │    Chrome    │
+                                              └──────────────┘
+```
+
+这个扩展允许 MCP 连接到**已经运行的浏览器实例**，复用用户的登录状态、Cookie、扩展程序等。这对于需要操作已登录账户的场景至关重要。
+
 ---
 
-*本文撰写于 2026年2月，基于 Playwright v1.58 和 MCP Protocol 2025-06-18 版本。技术发展迅速，建议读者查阅官方文档获取最新信息。*
+## 七、未来展望
+
+### 7.1 两个项目的演进方向
+
+根据 GitHub 仓库的活跃度分析：
+
+**Playwright CLI** 将专注于：
+- 与更多 Coding Agents 的深度集成
+- Skills 生态的扩展
+- 性能优化（更快的启动时间、更低的资源占用）
+
+**Playwright MCP** 将专注于：
+- 更丰富的工具集（已规划 vision、pdf、devtools 等可选能力）
+- 更广泛的 MCP 客户端兼容
+- 浏览器扩展功能的增强
+
+### 7.2 行业标准的可能走向
+
+微软的双轨策略实际上在为行业标准投下两注：
+
+1. **如果 Coding Agents 成为主流** → CLI + Skills 模式可能成为标准
+2. **如果通用 AI 客户端胜出** → MCP 协议可能成为标准
+
+目前看来，两条路径都在快速发展，短期内不会合并。
+
+### 7.3 对开发者的建议
+
+- **立即行动**：如果你的工作流中涉及 AI 辅助浏览器操作，现在就可以尝试两个项目
+- **双轨并行**：不必急于二选一，根据具体任务灵活切换
+- **关注 Skills/MCP 生态**：这是 AI 时代的新"API 经济"
+
+---
+
+## 八、总结
+
+微软通过 Playwright CLI 和 Playwright MCP 两个项目，展现了其对 AI 时代浏览器自动化的深刻洞察：
+
+| 项目 | 核心定位 | 最佳场景 |
+|------|----------|----------|
+| **Playwright CLI** | Token-efficient 的 Coding Agent 工具 | 高吞吐量、频繁切换的编码工作流 |
+| **Playwright MCP** | 状态持久、丰富内省的 MCP 服务器 | 探索性自动化、长周期自主工作流 |
+
+正如官方 README 所述：
+
+> *"CLI: Modern coding agents increasingly favor CLI–based workflows exposed as SKILLs over MCP because CLI invocations are more token-efficient."*
+
+> *"MCP remains relevant for specialized agentic loops that benefit from persistent state, rich introspection, and iterative reasoning over page structure."*
+
+这不是竞争关系，而是**互补关系**。微软的双轨策略确保了无论 AI 工具生态如何演进，Playwright 都能提供最优解决方案。
+
+---
+
+## 参考资源
+
+**Playwright CLI**
+- GitHub: https://github.com/microsoft/playwright-cli
+- npm: https://www.npmjs.com/package/@playwright/cli
+- 安装: `npm install -g @playwright/cli@latest`
+
+**Playwright MCP**
+- GitHub: https://github.com/microsoft/playwright-mcp
+- npm: https://www.npmjs.com/package/@playwright/mcp
+- 安装: `npx @playwright/mcp@latest`
+
+**相关技术**
+- Model Context Protocol 规范: https://modelcontextprotocol.io
+- Playwright 官方文档: https://playwright.dev
+- Accessibility Tree 标准: https://www.w3.org/WAI/ARIA/
+
+---
+
+*本文基于 playwright-cli 和 playwright-mcp 官方仓库的 README 文档撰写，所有引用均来自微软官方 GitHub 仓库的最新版本。*
