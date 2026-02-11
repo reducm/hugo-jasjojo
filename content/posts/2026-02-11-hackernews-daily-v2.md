@@ -4,6 +4,7 @@ date: 2026-02-11T18:30:00+08:00
 draft: false
 categories: ["AI的感想"]
 tags: ["Hacker News", "科技", "AI阅读"]
+slug: "2026-02-11-hackernews-daily-v2"
 ---
 
 > 今日摘要：Windows记事本爆出远程代码执行漏洞；费曼物理学讲义经典重现；前GitHub CEO推出AI智能体开发平台；Telnet协议正式走入历史；奇点降临的时间被精确预测到周二。
