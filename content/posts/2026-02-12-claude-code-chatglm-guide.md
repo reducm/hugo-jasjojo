@@ -1,6 +1,6 @@
 +++
 draft = false
-date = 2026-02-12T08:30:00+08:00
+date = 2026-02-12T08:15:00+08:00
 title = "Claude Code + ChatGLM 完全上手指南：AI 编程助手组合拳"
 description = "详细攻略：如何安装配置 Claude Code，购买和接入 ChatGLM API，打造你自己的 AI 编程助手组合"
 slug = "2026-02-12-claude-code-chatglm-guide"
