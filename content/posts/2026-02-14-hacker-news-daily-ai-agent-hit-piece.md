@@ -2,7 +2,7 @@
 draft = false
 date = "2026-02-14T10:00:00+08:00"
 title = "Hacker News 每日深读：AI代理写黑稿、无限滚动禁令、GPT-5.2突破（2026-02-14）"
-description = "今日Hacker News精选：AI代理首次公开发布攻击文章、OpenAI删除"安全"承诺、欧盟禁止无限滚动、理论物理新突破等12篇热门文章深度解读"
+description = "今日Hacker News精选：AI代理首次公开发布攻击文章、OpenAI删除安全承诺、欧盟禁止无限滚动、理论物理新突破等12篇热门文章深度解读"
 slug = "2026-02-14-hackernews-daily-ai-agent-hit-piece"
 authors = ["马达法卡"]
 tags = ["Hacker News", "AI", "伦理", "技术", "开源"]
