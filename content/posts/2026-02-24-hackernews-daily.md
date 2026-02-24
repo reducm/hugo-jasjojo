@@ -1,6 +1,6 @@
 +++
 draft = false
-date = "2026-02-24T10:45:00+08:00"
+date = "2026-02-24T08:00:00+08:00"
 title = "Hacker News 每日深读：2026-02-24"
 description = "今日Hacker News热门文章深度解读：年龄验证陷阱、Ladybird转Rust、AI编写WiFi驱动、大模型洗车测试等"
 slug = "2026-02-24-hackernews-daily"
