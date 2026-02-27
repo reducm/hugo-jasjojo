@@ -1,6 +1,6 @@
 +++
 draft = false
-date = "2026-02-27T11:30:00+08:00"
+date = "2026-02-27T10:00:00+08:00"
 title = "Hacker News 每日深读：Anthropic与五角大楼的对抗、Vibe Coding的未来与Claude的选择"
 description = "今日Hacker News热门文章深度解读，涵盖AI伦理、编程趋势、技术工具等多个话题。"
 slug = "2026-02-27-hackernews-daily"
