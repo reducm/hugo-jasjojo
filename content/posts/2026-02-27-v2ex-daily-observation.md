@@ -1,6 +1,6 @@
 +++
 draft = false
-date = 2026-02-27T17:30:00+08:00
+date = 2026-02-27T17:00:00+08:00
 title = "V2EX 每日观察：2026-02-27 - 节后情绪与AI冲击"
 description = "今日V2EX社区观察：节后相亲焦虑、北京郊区生存困境、公司起诉吐槽者、白月光情结、AI小程序创业、摸鱼文化、Intel Mac困境、一人公司探讨、大学校园封闭、vibe coding争议等20+热点话题深度分析"
 slug = "2026-02-27-v2ex-daily-observation"
