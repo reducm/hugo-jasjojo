@@ -10,6 +10,8 @@ tags = ["GPT", "AI", "深度学习", "Karpathy", "Python", "教程"]
 
 > "你不能真正理解一个东西，除非你能把它简化到最本质的形式。" — Andrej Karpathy
 
+**原文出处**：本文基于 Andrej Karpathy 的 [MicroGPT 项目](https://karpathy.github.io/2026/02/12/microgpt/) 进行解读和整理。
+
 ## 什么是 MicroGPT？
 
 想象有人用 200 行 Python 代码，不借助任何外部工具，从零搭建了一个能"说话"的 AI。这就是 **MicroGPT** —— AI 大神 Andrej Karpathy 的最新"艺术作品"。
@@ -114,13 +116,13 @@ BOS（序列开始标记）就像一个"哨兵"：
 
 ```mermaid
 flowchart LR
-    A[输入文字<br/>"emma"] --> B{字符级编码}
+    A[输入文字emma] --> B{字符级编码}
     B --> C[e → 4]
     B --> D[m → 12]
     B --> E[m → 12]
     B --> F[a → 0]
-    C & D & E & F --> G[[数字序列<br/>[4,12,12,0]]]
-    H[BOS标记<br/>26] --> I[包装序列<br/>[26,4,12,12,0,26]]
+    C & D & E & F --> G[[数字序列【4,12,12,0】 ]]
+    H[BOS标记 26] --> I[包装序列 【26,4,12,12,0,26】]
     G --> I
     
     style A fill:#e1f5ff
@@ -277,12 +279,12 @@ P(下一个词是 BOS) = 0.42  ← 最可能
 
 ```mermaid
 flowchart LR
-    A[Token IDs<br/>[26,4,12,12,0]] --> B[Token Embedding<br/>查表得向量]
-    C[位置 0,1,2,3,4] --> D[Position Embedding<br/>位置编码]
-    B & D --> E[相加<br/>语义+位置]
-    E --> F[Transformer Block<br/>注意力机制]
-    F --> G[输出层<br/>Softmax]
-    G --> H[概率分布<br/>预测下一个token]
+    A[Token IDs【26,4,12,12,0】] --> B[Token Embedding查表得向量]
+    C[位置 0,1,2,3,4] --> D[Position Embedding 位置编码]
+    B & D --> E[相加 语义+位置]
+    E --> F[Transformer Block 注意力机制]
+    F --> G[输出层 Softmax]
+    G --> H[概率分布 预测下一个token]
     
     style A fill:#e1f5ff
     style H fill:#e8f5e9
@@ -564,12 +566,18 @@ MicroGPT 生成 "kamon" 时，它并不知道这是一个名字，它只是按�
 
 ---
 
-## 📚 延伸阅读
+## 📚 参考来源
 
-- [MicroGPT 源代码](https://gist.github.com/karpathy/8627fe009c40f57531cb18360106ce95)
+### 原文及代码
+- **[MicroGPT 官方博客](https://karpathy.github.io/2026/02/12/microgpt/)** - Andrej Karpathy 的原文介绍
+- **[MicroGPT 源代码](https://gist.github.com/karpathy/8627fe009c40f57531cb18360106ce95)** - GitHub Gist 完整代码
+- **[MicroGPT 网页版](https://karpathy.ai/microgpt.html)** - 可交互的在线版本
+- **[Google Colab 笔记本](https://colab.research.google.com/drive/1vyN5zo6rqUp_dYNbT4Yrco66zuWCZKoN?usp=sharing)** - 可直接运行的代码
+
+### 相关学习资源
 - [Karpathy 的 micrograd 视频（2.5 小时详解自动微分）](https://www.youtube.com/watch?v=VMj-3S1tku0)
-- [MicroGPT 网页版](https://karpathy.ai/microgpt.html)
-- [Google Colab 笔记本](https://colab.research.google.com/drive/1vyN5zo6rqUp_dYNbT4Yrco66zuWCZKoN?usp=sharing)
+- [makemore 项目](https://github.com/karpathy/makemore) - 字符级语言模型基础
+- [nanoGPT 项目](https://github.com/karpathy/nanoGPT)** - 更大规模的 GPT 实现
 
 ---
 
