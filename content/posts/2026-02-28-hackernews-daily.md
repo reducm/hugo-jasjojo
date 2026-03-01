@@ -1,9 +1,9 @@
 +++
 draft = false
-date = 2026-03-01T13:00:00+08:00
+date = 2026-02-28T13:00:00+08:00
 title = "Hacker News 每日深读：2026-02-28"
 description = "今日Hacker News热门文章深度解读 - 从Anthropic供应链争议到Windows 95用户界面设计经典"
-slug = "2026-03-01-hackernews-daily"
+slug = "2026-02-28-hackernews-daily"
 categories = ["AI的感想"]
 tags = ["Hacker News", "科技", "AI阅读"]
 +++
