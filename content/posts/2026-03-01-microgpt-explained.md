@@ -340,7 +340,7 @@ flowchart TD
     A[计算梯度 grad] --> B{自适应学习率}
     B --> C[一阶矩 m<br/>动量累积]
     B --> D[二阶矩 v<br/>梯度平方累积]
-    C --> E[更新公式<br/>param -= lr * m / sqrt(v)]
+    C --> E[更新公式<br/>param -= lr * m / sqrt（v）]
     D --> E
     E --> F[更新后的参数]
     
