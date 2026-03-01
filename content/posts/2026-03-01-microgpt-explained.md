@@ -18,6 +18,33 @@ tags = ["GPT", "AI", "深度学习", "Karpathy", "Python", "教程"]
 
 ---
 
+## MicroGPT 整体流程图
+
+在开始详解每个部分之前，先看一下 MicroGPT 的完整工作流程：
+
+```mermaid
+flowchart TD
+    A[原始数据<br/>32000个人名] --> B[Tokenizer<br/>文字→数字]
+    B --> C[神经网络<br/>预测下一个token]
+    C --> D[损失计算<br/>预测vs真实]
+    D --> E[Autograd<br/>反向传播算梯度]
+    E --> F[Adam优化器<br/>更新参数]
+    F --> C
+    
+    style A fill:#e1f5ff
+    style B fill:#fff4e1
+    style C fill:#e8f5e9
+    style D fill:#ffebee
+    style E fill:#f3e5f5
+    style F fill:#fff8e1
+```
+
+**训练阶段**：循环执行 ①→②→③→④→⑤→①，重复 20,000 次
+
+**推理阶段**：只需 ①→②，循环生成直到遇到结束标记
+
+---
+
 ## 第一部分：Dataset（数据集）—— AI 的"食物"
 
 ### 本质是什么？
@@ -83,6 +110,25 @@ BOS（序列开始标记）就像一个"哨兵"：
 
 模型学到：看到 BOS 就开始生成新名字，再看到 BOS 就停下来。
 
+### Tokenizer 工作流程
+
+```mermaid
+flowchart LR
+    A[输入文字<br/>"emma"] --> B{字符级编码}
+    B --> C[e → 4]
+    B --> D[m → 12]
+    B --> E[m → 12]
+    B --> F[a → 0]
+    C & D & E & F --> G[[数字序列<br/>[4,12,12,0]]]
+    H[BOS标记<br/>26] --> I[包装序列<br/>[26,4,12,12,0,26]]
+    G --> I
+    
+    style A fill:#e1f5ff
+    style I fill:#e8f5e9
+```
+
+**关键理解**：文字和数字只是不同形式的标签，神经网络只认数字。
+
 ---
 
 ## 第三部分：Autograd（自动微分）—— AI 的"自我纠错系统"
@@ -141,6 +187,25 @@ Karpathy 用一句话总结：**链式法则只是乘法，拓扑排序只是确
 每次试错后，Autograd 告诉每个参数："你闯的祸有多大？下次怎么改？"
 
 这就是 AI "学习"的真相：**不是理解，而是统计意义上的参数调优**。
+
+### Autograd 反向传播流程
+
+```mermaid
+flowchart BT
+    A[损失 Loss] --> B[梯度 = 1]
+    B --> C[输出层]
+    C -->|链式法则| D[Transformer层]
+    D -->|链式法则| E[Embedding层]
+    E -->|链式法则| F[模型参数]
+    
+    G[正向传播<br/>计算预测值] -.-> A
+    
+    style A fill:#ffebee
+    style F fill:#e8f5e9
+    style G fill:#e1f5ff
+```
+
+**核心原理**：链式法则就像「责任追究」——从最终结果往回推，每个环节承担多少责任。
 
 ---
 
@@ -208,6 +273,24 @@ P(下一个词是 BOS) = 0.42  ← 最可能
 
 如果模型能准确预测 "I love" 后面应该接 "you" 而不是 "苹果"，说明它真的"理解"了英语。
 
+### 神经网络数据流
+
+```mermaid
+flowchart LR
+    A[Token IDs<br/>[26,4,12,12,0]] --> B[Token Embedding<br/>查表得向量]
+    C[位置 0,1,2,3,4] --> D[Position Embedding<br/>位置编码]
+    B & D --> E[相加<br/>语义+位置]
+    E --> F[Transformer Block<br/>注意力机制]
+    F --> G[输出层<br/>Softmax]
+    G --> H[概率分布<br/>预测下一个token]
+    
+    style A fill:#e1f5ff
+    style H fill:#e8f5e9
+    style F fill:#fff4e1
+```
+
+**关键理解**：模型不是直接预测文字，而是预测「下一个 token 的概率分布」。
+
 ---
 
 ## 第五部分：Adam Optimizer（优化器）—— AI 的"教练"
@@ -247,6 +330,24 @@ param = param - lr * m / sqrt(v)
 - 有些方向一致 → 要「保持惯性」
 
 Adam 就是调节这些的「智能教练」。
+
+### Adam 优化流程
+
+```mermaid
+flowchart TD
+    A[计算梯度 grad] --> B{自适应学习率}
+    B --> C[一阶矩 m<br/>动量累积]
+    B --> D[二阶矩 v<br/>梯度平方累积]
+    C --> E[更新公式<br/>param -= lr * m / sqrt(v)]
+    D --> E
+    E --> F[更新后的参数]
+    
+    style A fill:#ffebee
+    style E fill:#fff4e1
+    style F fill:#e8f5e9
+```
+
+**核心思想**：不同参数需要不同的学习速度，Adam 自动调节每个参数的「步伐大小」。
 
 ---
 
@@ -293,6 +394,31 @@ for step in range(max_steps):
 - 每步看 32 个名字
 
 最终损失从 ~3.3 降到 ~1.9，模型学会了「人名的统计规律」。
+
+### 训练循环详细流程
+
+```mermaid
+flowchart TD
+    Start([开始训练]) --> A[随机抓取一批数据]
+    A --> B[Tokenize<br/>文字转数字]
+    B --> C[前向传播<br/>模型预测]
+    C --> D[计算损失<br/>预测vs真实]
+    D --> E{损失是否<br/>足够小?}
+    E -->|否| F[反向传播<br/>计算梯度]
+    F --> G[Adam优化<br/>更新参数]
+    G --> H[清零梯度]
+    H --> I{训练步数<br/>达标?}
+    I -->|否| A
+    I -->|是| End([结束训练])
+    E -->|是| End
+    
+    style Start fill:#e1f5ff
+    style End fill:#e8f5e9
+    style F fill:#ffebee
+    style G fill:#fff4e1
+```
+
+**MicroGPT 训练规模**：32,000 个名字 × 20,000 步 = 约 6 亿次参数更新
 
 ---
 
@@ -343,6 +469,82 @@ name = tokenizer.decode(tokens)
 
 低温 = 保守（总是"emma"）
 高温 = 创意（可能"xyz123"）
+
+### 推理生成流程
+
+```mermaid
+flowchart TD
+    Start([开始生成]) --> A[输入 BOS<br/>开始标记]
+    A --> B[前向传播<br/>获取概率分布]
+    B --> C[按概率采样<br/>选择下一个token]
+    C --> D[添加到序列]
+    D --> E{是否是<br/>BOS结束标记?}
+    E -->|否| B
+    E -->|是| F[Detokenize<br/>数字转文字]
+    F --> End([输出生成的名字])
+    
+    style Start fill:#e1f5ff
+    style End fill:#e8f5e9
+    style B fill:#fff4e1
+    style C fill:#f3e5f5
+```
+
+**关键理解**：生成是「重复预测+采样」的过程，直到遇到结束标记。
+
+### 温度的作用
+
+```mermaid
+flowchart LR
+    A[温度参数] --> B{T < 1}
+    A --> C{T = 1}
+    A --> D{T > 1}
+    B --> E[保守<br/>总是选最可能的]
+    C --> F[平衡<br/>按原概率采样]
+    D --> G[创意<br/>可能出奇怪结果]
+    
+    style E fill:#e8f5e9
+    style F fill:#fff4e1
+    style G fill:#ffebee
+```
+
+**例子**：
+- **T=0.1**（低温）：总是 "emma", "olivia" —— 安全但无聊
+- **T=1.0**（中温）："kamon", "karai" —— 合理且多样
+- **T=2.0**（高温）："xyz123", "qqqqq" —— 可能不符合规则
+
+---
+
+## 🔄 训练 vs 推理：流程对比
+
+```mermaid
+flowchart TB
+    subgraph 训练阶段[训练阶段 —— 学习时间]
+        T1[输入数据] --> T2[前向预测]
+        T2 --> T3[计算损失]
+        T3 --> T4[反向传播<br/>算梯度]
+        T4 --> T5[Adam优化<br/>改参数]
+        T5 --> T2
+    end
+    
+    subgraph 推理阶段[推理阶段 —— 工作时间]
+        I1[输入提示] --> I2[前向预测]
+        I2 --> I3[采样输出]
+        I3 --> I4{结束?}
+        I4 -->|否| I2
+        I4 -->|是| I5[返回结果]
+    end
+    
+    训练阶段 -.->|训练完成后<br/>参数固定| 推理阶段
+    
+    style 训练阶段 fill:#fff4e1
+    style 推理阶段 fill:#e8f5e9
+    style T4 fill:#ffebee
+    style T5 fill:#f3e5f5
+```
+
+**关键区别**：
+- **训练**：需要「试错-纠错」循环，目的是**学习参数**
+- **推理**：只用前向传播，目的是**生成结果**，参数不变
 
 ---
 
