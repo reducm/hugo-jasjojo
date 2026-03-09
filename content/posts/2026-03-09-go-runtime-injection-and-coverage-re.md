@@ -437,22 +437,172 @@ func loggingInterceptor(
 Go 编译器（gc）是 Go 的官方编译器，了解其结构对于实现编译时插桩至关重要。
 
 **编译阶段**:
-1. **词法分析**: `cmd/compile/internal/syntax`
-2. **语法分析**: `cmd/compile/internal/syntax`
-3. **类型检查**: `cmd/compile/internal/types2`
-4. **AST 构建**: `cmd/compile/internal/ir`
-5. **优化**: `cmd/compile/internal/inline`, `cmd/compile/internal/escape`
-6. **SSA 生成**: `cmd/compile/internal/ssa`
-7. **代码生成**: `cmd/internal/obj`
+1. **词法分析**: `cmd/compile/internal/syntax` - 将源代码转换为 token 流
+2. **语法分析**: `cmd/compile/internal/syntax` - 构建语法树
+3. **类型检查**: `cmd/compile/internal/types2` - 类型检查和推断
+4. **AST 构建**: `cmd/compile/internal/ir` - 构建编译器内部 AST
+5. **优化**: 
+   - `cmd/compile/internal/inline` - 函数内联
+   - `cmd/compile/internal/escape` - 逃逸分析
+   - `cmd/compile/internal/devirtualize` - 接口方法去虚拟化
+6. **SSA 生成**: `cmd/compile/internal/ssa` - 转换为 SSA 形式
+7. **代码生成**: `cmd/internal/obj` - 生成机器码
 
-**插桩点**:
-- **AST 阶段**: 在 AST 构建后插入代码
-- **SSA 阶段**: 在 SSA 优化时插入代码
-- **代码生成阶段**: 在机器码生成时插入代码
+**编译器插桩点**:
+- **AST 阶段**: 在 AST 构建后插入代码（最常用）
+- **SSA 阶段**: 在 SSA 优化时插入代码（更底层）
+- **代码生成阶段**: 在机器码生成时插入代码（最底层）
 
-### 8.2 编译时 AST 操作
+### 8.2 Go 原生覆盖率实现原理
 
-使用 `go/ast` 等库可以在编译时修改 AST。
+**项目**: [go tool cover](https://github.com/golang/go/blob/master/src/cmd/cover/cover.go)
+
+Go 的原生覆盖率工具 `go tool cover` 是编译时插桩的最佳示例。
+
+**实现原理**:
+1. **源码解析**: 使用 `go/parser` 解析源代码为 AST
+2. **AST 遍历**: 遍历 AST，找到函数声明和代码块
+3. **代码注入**: 在函数入口和出口插入计数器代码
+4. **代码生成**: 将修改后的 AST 输出为新的 Go 源文件
+
+**核心代码示例** (简化版):
+```go
+// 原始函数
+func add(a, b int) int {
+    return a + b
+}
+
+// 插桩后的函数
+func add(a, b int) int {
+    GoCover_0_1234567890.Count[0] = 1  // 入口计数
+    defer func() { GoCover_0_1234567890.Count[1] = 1 }()  // 出口计数
+    return a + b
+}
+```
+
+**关键数据结构**:
+```go
+// 覆盖率计数器
+var GoCover_0_1234567890 = struct {
+    Count     [2]uint32  // 计数器数组
+    Pos       [2]token.Pos  // 位置信息
+    NumStmt   [2]uint16   // 语句数量
+}
+```
+
+### 8.3 使用 go/ast 实现插桩
+
+**标准库工具**:
+- `go/ast` - AST 类型定义
+- `go/parser` - 源码解析
+- `go/token` - token 和位置信息
+- `go/types` - 类型检查
+- `go/printer` - AST 打印
+
+**完整示例: 函数入口插桩**
+```go
+package main
+
+import (
+    "bytes"
+    "fmt"
+    "go/ast"
+    "go/parser"
+    "go/printer"
+    "go/token"
+)
+
+// 插桩器
+type Instrumenter struct {
+    fset    *token.FileSet
+    file    *ast.File
+    counter int
+}
+
+func NewInstrumenter(src string) (*Instrumenter, error) {
+    fset := token.NewFileSet()
+    file, err := parser.ParseFile(fset, "source.go", []byte(src), parser.ParseComments)
+    if err != nil {
+        return nil, err
+    }
+    return &Instrumenter{fset: fset, file: file}, nil
+}
+
+// 在函数入口插入计数器
+func (i *Instrumenter) InstrumentFunctions() {
+    ast.Inspect(i.file, func(n ast.Node) bool {
+        if fn, ok := n.(*ast.FuncDecl); ok && fn.Body != nil {
+            // 在函数体开头插入计数器
+            counterCall := &ast.ExprStmt{
+                X: &ast.CallExpr{
+                    Fun: &ast.Ident{Name: "incrementCounter"},
+                    Args: []ast.Expr{&ast.BasicLit{Kind: token.INT, Value: fmt.Sprintf("%d", i.counter)}},
+                },
+            }
+            // 插入到函数体开头
+            fn.Body.List = append([]ast.Stmt{counterCall}, fn.Body.List...)
+            i.counter++
+        }
+        return true
+    })
+}
+
+// 输出修改后的代码
+func (i *Instrumenter) Print() string {
+    var buf bytes.Buffer
+    printer.Fprint(&buf, i.fset, i.file)
+    return buf.String()
+}
+
+func main() {
+    src := `
+package main
+
+func add(a, b int) int {
+    return a + b
+}
+
+func main() {
+    result := add(1, 2)
+    println(result)
+}
+`
+    
+    inst, err := NewInstrumenter(src)
+    if err != nil {
+        panic(err)
+    }
+    
+    inst.InstrumentFunctions()
+    fmt.Println(inst.Print())
+}
+```
+
+**输出结果**:
+```go
+package main
+
+func add(a, b int) int {
+    incrementCounter(0)
+    return a + b
+}
+
+func main() {
+    incrementCounter(1)
+    result := add(1, 2)
+    println(result)
+}
+```
+
+### 8.4 golang.org/x/tools/go/packages
+
+对于更复杂的项目，推荐使用 `golang.org/x/tools/go/packages` 包。
+
+**特点**:
+- 支持多文件解析
+- 自动处理依赖关系
+- 支持 Go Modules
+- 提供类型信息
 
 **示例**:
 ```go
@@ -461,22 +611,257 @@ package main
 import (
     "fmt"
     "go/ast"
-    "go/parser"
-    "go/token"
+    "go/types"
+    "golang.org/x/tools/go/packages"
 )
 
 func main() {
-    src := `package main
-
-func add(a, b int) int {
-    return a + b
-}
-`
-    fset := token.NewFileSet()
-    f, _ := parser.ParseFile(fset, "example.go", []byte(src), parser.ParseComments)
-    ast.Print(fset, f)
+    cfg := &packages.Config{Mode: packages.NeedName s | packages.NeedFiles | packages.NeedTypes}
+    pkgs, err := packages.Load(cfg, "fmt", "os")
+    if err != nil {
+        panic(err)
+    }
+    
+    for _, pkg := range pkgs {
+        fmt.Printf("Package: %s\n", pkg.Name)
+        for _, file := range pkg.Syntax {
+            ast.Inspect(file, func(n ast.Node) bool {
+                if fn, ok := n.(*ast.FuncDecl); ok {
+                    fmt.Printf("  Function: %s\n", fn.Name.Name)
+                }
+                return true
+            })
+        }
+    }
 }
 ```
+
+### 8.5 现有工具分析
+
+#### golangci-lint
+**GitHub**: https://github.com/golangci/golangci-lint
+
+**实现原理**:
+- 使用 `golang.org/x/tools/go/packages` 加载代码
+- 遍历 AST 进行各种检查
+- 支持自定义 linter 插件
+
+**关键代码** (简化):
+```go
+type Linter struct {
+    cfg *packages.Config
+}
+
+func (l *Linter) Run(pkgPath string) error {
+    pkgs, err := packages.Load(l.cfg, pkgPath)
+    if err != nil {
+        return err
+    }
+    
+    for _, pkg := range pkgs {
+        for _, file := range pkg.Syntax {
+            // 检查未使用的变量
+            ast.Inspect(file, func(n ast.Node) bool {
+                if decl, ok := n.(*ast.GenDecl); ok && decl.Tok == token.VAR {
+                    // 检查变量是否被使用
+                    checkUnusedVariable(pkg.TypesInfo, decl)
+                }
+                return true
+            })
+        }
+    }
+    return nil
+}
+```
+
+#### sqlc
+**GitHub**: https://github.com/kyleconroy/sqlc
+
+**实现原理**:
+- 解析 SQL 查询语句
+- 使用 AST 生成 Go 代码
+- 支持类型安全的 SQL 查询
+
+**特点**:
+- 从 SQL 生成类型安全的 Go 代码
+- 编译时检查 SQL 语法
+- 支持 PostgreSQL, MySQL, SQLite
+
+### 8.6 修改 Go 编译器的可行性
+
+#### 方案 1: Fork 编译器
+**优点**:
+- 完全控制编译流程
+- 可以在任何编译阶段插入代码
+
+**缺点**:
+- 维护成本极高
+- 需要跟随上游 Go 版本更新
+- 社区难以接受
+- 不符合 Go 官方工具链
+
+**可行性**: ⭐ (不推荐)
+
+#### 方案 2: 编译器插件
+**现状**: Go 编译器目前**没有官方插件机制**
+
+**替代方案**:
+- 使用 `-toolexec` 标志包装编译工具
+- 在编译前/后处理代码
+
+**示例**:
+```bash
+# 使用自定义工具包装编译器
+go build -toolexec='/path/to/my-tool'
+```
+
+**可行性**: ⭐⭐⭐ (可行，但限制较多)
+
+#### 方案 3: 源码到源码转换 (推荐)
+**原理**: 在编译前修改源代码
+
+**工具**:
+- `go/ast` + `go/parser` + `go/printer`
+- `golang.org/x/tools/go/packages`
+
+**优点**:
+- 无需修改编译器
+- 完全使用标准库
+- 可维护性高
+- 社区友好
+
+**实现步骤**:
+1. 解析源代码为 AST
+2. 遍历并修改 AST
+3. 生成新的源代码
+4. 编译修改后的代码
+
+**可行性**: ⭐⭐⭐⭐⭐ (强烈推荐)
+
+#### 方案 4: 构建自定义工具链
+**原理**: 包装 `go build` 命令
+
+**示例**:
+```bash
+#!/bin/bash
+# my-go-build.sh
+
+# 1. 提取源文件
+SOURCES=$(go list -f '{{range .GoFiles}}{{.}}{{"\n"}}{{end}}' ./...)
+
+# 2. 插桩
+for src in $SOURCES; do
+    my-instrumenter $src > instrumented/$src
+done
+
+# 3. 编译
+go build ./instrumented
+```
+
+**可行性**: ⭐⭐⭐⭐ (推荐用于 CI/CD)
+
+### 8.7 类似 Jacoco 的实现方案
+
+**Jacoco 特点**:
+- 字节码级别插桩
+- 运行时覆盖率统计
+- 支持增量覆盖率
+
+**Go 实现方案**:
+
+#### 方案 A: goc (系统测试覆盖率)
+**GitHub**: https://github.com/qiniu/goc
+
+**实现**:
+- 编译时插桩（类似 Jacoco）
+- 运行时通过 HTTP 接口收集覆盖率
+- 支持多服务合并
+
+#### 方案 B: 自定义实现
+**步骤**:
+1. 使用 `go/ast` 在函数入口插入计数器
+2. 在应用中暴露 HTTP 接口
+3. 运行时读取计数器数据
+4. 生成覆盖率报告
+
+**示例架构**:
+```go
+// 插桩后的代码
+var coverage = struct {
+    sync.RWMutex
+    counters map[string]uint64
+}{
+    counters: make(map[string]uint64),
+}
+
+func incrementCounter(funcName string) {
+    coverage.Lock()
+    coverage.counters[funcName]++
+    coverage.Unlock()
+}
+
+// HTTP 接口
+func getCoverage(w http.ResponseWriter, r *http.Request) {
+    coverage.RLock()
+    defer coverage.RUnlock()
+    json.NewEncoder(w).Encode(coverage.counters)
+}
+
+// 插桩后的函数
+func add(a, b int) int {
+    incrementCounter("add")
+    return a + b
+}
+```
+
+### 8.8 实际项目案例
+
+#### qiniu/goc
+**GitHub**: https://github.com/qiniu/goc
+
+**实现细节**:
+- 修改 `go build` 命令为 `goc build`
+- 自动在编译时插桩
+- 启动 goc server 收集覆盖率
+- 支持 Kubernetes 部署
+
+#### gocov
+**GitHub**: https://github.com/axw/gocov
+
+**特点**:
+- 早期覆盖率工具
+- 编译时插桩
+- 生成 XML/HTML 报告
+
+#### covergates
+**GitHub**: https://github.com/covergates/covergates
+
+**特点**:
+- 支持 Go、C、C++、Java、Python
+- Web UI 界面
+- 集成 CI/CD
+
+### 8.9 最佳实践建议
+
+**1. 不要修改编译器本身**
+- 维护成本太高
+- 跟随上游版本困难
+- 社区不接受
+
+**2. 推荐使用源码到源码转换**
+- 使用 `go/ast` 修改代码
+- 完全基于标准库
+- 可维护性高
+
+**3. 参考现有工具**
+- `go tool cover` - 官方覆盖率工具
+- `goc` - 系统测试覆盖率
+- `golangci-lint` - AST 分析工具
+
+**4. 构建工具链**
+- 包装 `go build` 命令
+- 在 CI/CD 中集成
+- 提供良好的开发体验
 
 **参考文档**:
 - Go 编译器文档: https://go.dev/src/cmd/compile/README
