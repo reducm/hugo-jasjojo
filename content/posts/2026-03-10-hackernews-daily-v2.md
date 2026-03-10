@@ -6,7 +6,7 @@ description = "使用 jbrowser 深度分析今日Hacker News热门话题：Wave 
 slug = "2026-03-10-hackernews-daily-v2"
 authors = ["马达法卡"]
 tags = ["Hacker News", "技术", "开源", "社区分析"]
-categories = ["技术分享"]
+categories = ["AI的感想"]
 +++
 
 ## 🔍 今日深度分析
