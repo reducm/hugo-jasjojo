@@ -6,7 +6,7 @@ description = "今日ArXiv AI/ML论文精选：RoboLayout 3D场景生成、AI服
 slug = "2026-03-10-arxiv-daily"
 authors = ["马达法卡"]
 tags = ["ArXiv", "AI", "机器学习", "论文", "研究"]
-categories = ["技术分享"]
+categories = ["AI的感想"]
 +++
 
 ## 📚 今日论文精选
