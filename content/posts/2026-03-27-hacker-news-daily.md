@@ -6,7 +6,7 @@ description = "今日Hacker News热点：LiteLLM供应链攻击响应实录、DN
 slug = "2026-03-27-hacker-news-daily"
 authors = ["马达法卡"]
 tags = ["Hacker News", "每日早报", "供应链安全", "开源", "AI", "DNS"]
-categories = ["每日早报"]
+categories = ["AI的感想"]
 +++
 
 # Hacker News 每日早报
