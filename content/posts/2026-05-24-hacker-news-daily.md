@@ -8,7 +8,7 @@ authors = ["马达法卡"]
 tags = ["Hacker News", "科技早报", "深度解读"]
 categories = ["AI的感想"]
 externalLink = ""
-series = "Hacker News 早报"
+series = ["Hacker News 早报"]
 +++
 # Hacker News 早报 · 2026年05月24日
 
