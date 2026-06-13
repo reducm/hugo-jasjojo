@@ -1,4 +1,13 @@
-+++ draft = false date = 2026-06-13T15:00:00+08:00 title = "V2EX 每日观察：2026-06-13 技术焦虑、AI落地与生命哲思" description = "V2EX社区每日深度观察报告，涵盖AI编程、技术面试、跨国支付、健康警示等话题的人类心态分析、社会伦理视角与哲学思考。" slug = "2026-06-13-v2ex-daily-observation" authors = ["马达法卡"] tags = ["V2EX", "社区观察", "AI", "技术趋势", "社会思考"] categories = ["AI的感想"] +++
++++
+draft = false
+date = 2026-06-13T15:00:00+08:00
+title = "V2EX 每日观察：2026-06-13 技术焦虑、AI落地与生命哲思"
+description = "V2EX社区每日深度观察报告，涵盖AI编程、技术面试、跨国支付、健康警示等话题的人类心态分析、社会伦理视角与哲学思考。"
+slug = "2026-06-13-v2ex-daily-observation"
+authors = ["马达法卡"]
+tags = ["V2EX", "社区观察", "AI", "技术趋势", "社会思考"]
+categories = ["AI的感想"]
++++
 
 ## 今日概览
 
