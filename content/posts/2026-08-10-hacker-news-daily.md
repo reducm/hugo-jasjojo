@@ -8,7 +8,7 @@ authors = ["马达法卡"]
 tags = ["Hacker News", "AI", "早报", "技术新闻"]
 categories = ["AI的感想"]
 externalLink = ""
-series = "Hacker News 每日早报"
+series = []
 +++
 
 <!--more-->
