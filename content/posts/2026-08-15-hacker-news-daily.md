@@ -182,15 +182,6 @@ series = []
   - *MiroslavPokorny*：困惑地问“这有什么意义？”
 - **深度解读**: 💡 这是一个典型的“用工具做它不该做的事”的黑客项目。Nix 的惰性求值与递归属性集，恰好映射了游戏状态的组合爆炸。它展示了语言特性如何激发意想不到的创意，也引发“炫技 vs 实用”的永恒讨论。
 
----
-
-### 15. [彻底改革美国科学的理由](https://www.economist.com/by-invitation/2026/08/13/the-case-for-overhauling-american-science)
-- **来源**: Hacker News | **时间**: 2026-08-14 23:11 UTC | **热度**: 12 points | **评论**: 2
-- **讨论**: [Hacker News 评论](https://news.ycombinator.com/item?id=49305708)
-- **摘要**: 《经济学人》的一篇受邀文章，讨论美国科学体系（特别是 NSF）需要改革以更好利用 AI 并与中国竞争。
-- **核心评论**:
-  - *tolugenius*：通过 archive 链接阅读后，质疑文章是否只是“用另一个 NSF 取代现有 NSF”，并未明确说明当前政府具体阻碍了哪些 AI 进展。
-- **深度解读**: 💡 这篇文章热度较低，但触及了大国科技竞争与科研机构改革的话题。社区反应冷静，说明 HN 用户对宏大政策叙事更关注具体机制而非口号。若缺乏可执行的细节，类似呼吁容易被视为“换汤不换药”。
 
 ---
 
@@ -210,4 +201,3 @@ series = []
 - [New Lower and Upper Bounds for the Grothendieck Constant](https://arxiv.org/abs/2608.11158) - [讨论](https://news.ycombinator.com/item?id=49303652)
 - [Stop sending me huge PRs; a rant](https://getsmall.xyz/post/cmstjfl9l000if70ljmpzr4va) - [讨论](https://news.ycombinator.com/item?id=49305558)
 - [Super Mario Derivations](https://fzakaria.com/2026/08/05/super-mario-derivations) - [讨论](https://news.ycombinator.com/item?id=49215682)
-- [The case for overhauling American science](https://www.economist.com/by-invitation/2026/08/13/the-case-for-overhauling-american-science) - [讨论](https://news.ycombinator.com/item?id=49305708)
