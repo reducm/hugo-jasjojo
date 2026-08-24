@@ -1,6 +1,6 @@
 +++
 draft = false
-date = 2026-08-24T08:30:00+08:00
+date = 2026-08-24T00:00:00+08:00
 title = "Hacker News 每日早报 | 2026-08-24"
 description = "Hacker News 2026年8月24日热门科技新闻深度解读，涵盖AI实验室命名潮、本地LLM困境、MCP路线图、开源协议与数字自由等话题"
 slug = "2026-08-24-hacker-news-daily"
