@@ -1,6 +1,6 @@
 +++
 draft = false
-date = 2026-08-27T08:30:00+08:00
+date = 2026-08-27T08:05:00+08:00
 title = "Hacker News 每日早报：2026-08-27"
 description = "今日 Hacker News 精选 11 条热门文章及社区核心评论，覆盖 AWS 收购 DuckLabs、GLM/Qwen Flash 模型、Tailscale 新工具、离线地图救援与 AI 工具反思。"
 slug = "2026-08-27-hacker-news-daily"
