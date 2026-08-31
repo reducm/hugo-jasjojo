@@ -1,6 +1,6 @@
 +++
 draft = false
-date = 2026-08-31T08:30:00+08:00
+date = 2026-08-31T07:30:00+08:00
 title = "Hacker News 每日早报：2026-08-31"
 description = "今日 Hacker News 精选 15 条热门文章及社区核心评论，覆盖排版工艺、AI 爬虫、教皇 AI 通谕、Haiku 发行版、磁芯存储、Meta 和解、NFC 硬件、AI 教育视频、扩散语言模型、Git 技巧、开源 GPU 驱动、组织协同、低技术能源、IKEA 改造与古代数字系统。"
 slug = "2026-08-31-hacker-news-daily"
