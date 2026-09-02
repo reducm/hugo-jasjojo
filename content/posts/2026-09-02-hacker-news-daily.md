@@ -1,6 +1,6 @@
 +++
 draft = false
-date = 2026-09-02T08:30:00+08:00
+date = 2026-09-02T07:00:00+08:00
 title = "Hacker News 每日早报：2026-09-02"
 description = "今日 Hacker News 精选 15 条热门文章及社区核心评论，覆盖本地 LLM、Agent 工具、隐私搜索、编程语言与去中心化协议。"
 slug = "2026-09-02-hacker-news-daily"
