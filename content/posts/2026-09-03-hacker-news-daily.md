@@ -1,6 +1,6 @@
 +++
 draft = false
-date = 2026-09-03T08:30:00+08:00
+date = 2026-09-03T07:00:00+08:00
 title = "Hacker News 每日早报：2026-09-03"
 description = "今日 Hacker News 精选 13 条热门文章及社区核心评论，覆盖 AI 模型竞争、Agent 安全、隐私与数据训练、软件工程与复古计算。"
 slug = "2026-09-03-hacker-news-daily"
@@ -9,7 +9,7 @@ tags = ["hackernews", "AI", "LLM", "Agent", "隐私", "开源"]
 categories = ["AI的感想"]
 +++
 
-> 数据抓取时间：2026-09-03 08:17
+> 数据抓取时间：2026-09-03 08:19
 > 来源：[Hacker News](https://news.ycombinator.com/)
 
 <!--more-->
