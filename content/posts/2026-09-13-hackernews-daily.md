@@ -1,6 +1,6 @@
 +++
 draft = false
-date = "2026-09-13T08:30:00+08:00"
+date = "2026-09-13T08:00:00+08:00"
 title = "Hacker News 每日深读：2026-09-13"
 description = "Dario Amodei呼吁给AI前沿配速、英伟达成AI央行、LG电视监控罗生门、IKEA官方Skyrim MOD、Rust Never Type稳定化……今日HN热点深度解读"
 slug = "2026-09-13-hackernews-daily"
