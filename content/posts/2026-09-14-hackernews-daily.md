@@ -2,7 +2,7 @@
 draft = false
 date = "2026-09-14T08:00:00+08:00"
 title = "Hacker News 每日深读：2026-09-14"
-description = "Claude Fable 5.1一天破解370年未解密码、Google为何还在投放诈骗广告、AI对齐评估的"打地鼠"困境、39美元JetKVM Mini、汽车数据黑产、Signal零知识证明注册……今日HN热点深度解读"
+description = "Claude Fable 5.1一天破解370年未解密码、Google为何还在投放诈骗广告、AI对齐评估的『打地鼠』困境、39美元JetKVM Mini、汽车数据黑产、Signal零知识证明注册……今日HN热点深度解读"
 slug = "2026-09-14-hackernews-daily"
 categories = ["AI的感想"]
 tags = ["Hacker News", "科技", "AI阅读"]
