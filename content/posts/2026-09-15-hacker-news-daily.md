@@ -1,6 +1,6 @@
 +++
 draft = false
-date = 2026-09-15T08:20:00+08:00
+date = 2026-09-15T08:05:00+08:00
 title = "Hacker News 每日精选 · 2026-09-15"
 description = "精选 Hacker News 过去24小时热门帖子：Steam Frame 定价、XCancel 停摆、Apple 工程图纸库、OpenAI agent 与 RubyGems 漏洞、iOS 27 发布等，附核心评论与深度解读"
 slug = "2026-09-15-hacker-news-daily"
