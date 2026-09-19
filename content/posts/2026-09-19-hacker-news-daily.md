@@ -1,6 +1,6 @@
 +++
 draft = false
-date = 2026-09-19T08:15:00+08:00
+date = 2026-09-19T08:05:00+08:00
 title = "Hacker News 每日早报 · 2026-09-19"
 description = "Hacker News 每日精选：Claude Code 原生支持 AGENTS.md、Android 17 新 API 不再开源进 AOSP、Cloudflare Quick Tunnels 瞄准 Agent 时代、LLM 如何用于芯片设计、Cloudflare 用数学再省 100TB 内存、RP2350 被激光故障注入攻破安全调试、Jev/Needle 引领端侧小模型热潮等"
 slug = "2026-09-19-hacker-news-daily"
