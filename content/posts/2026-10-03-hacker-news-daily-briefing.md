@@ -1,6 +1,6 @@
 +++
 draft = false
-date = 2026-10-03T08:30:00+08:00
+date = 2026-10-03T07:30:00+08:00
 title = "Hacker News 每日早报 · 2026-10-03"
 description = "Hacker News 每日精选：法院裁定犹他州 VPN 法案不可行、Apple Pass Designer、FLUX 3 图像模型、冯·诺依曼传奇、Zig 0.17、AI 安全的现实检验等 14 条热帖深度解读"
 slug = "2026-10-03-hacker-news-daily-briefing"
