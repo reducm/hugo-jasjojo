@@ -1,6 +1,6 @@
 +++
 draft = false
-date = 2026-10-05T08:20:00+08:00
+date = 2026-10-05T08:05:00+08:00
 title = "Hacker News 每日早报 · 2026-10-05"
 description = "Hacker News 每日精选：4090 跑 125B 模型的 Strata、关掉 macOS Apple Intelligence、Google 数据中心用水数据被还原、Bob Cringely 去世、SSH+Nginx 自建隧道、全世界灯塔地图等 15 条热帖深度解读"
 slug = "2026-10-05-hacker-news-daily"
