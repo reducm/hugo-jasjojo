@@ -1,6 +1,6 @@
 +++
 draft = false
-date = 2026-10-11T08:30:00+08:00
+date = 2026-10-11T07:30:00+08:00
 title = "Hacker News 每日早报 - 2026-10-11"
 description = "REA 让 AI 逆向一切软件、Telegram 桌面端一键盗号漏洞、丹麦 880 万公民数据因 123456 密码泄露、Bitwarden 双许可证模式、macOS 被移出 Unix 官方名录，附核心评论与深度分析"
 slug = "hacker-news-daily-2026-10-11"
