@@ -1,6 +1,6 @@
 +++
 draft = false
-date = 2026-10-19T08:15:00+08:00
+date = 2026-10-19T08:05:00+08:00
 title = "Hacker News 每日早报 2026-10-19"
 description = "Hacker News 热门文章深度解读：DeepSeek 搜索 API 每千次 $0.75 击穿底价、RepRapMicron 开源微米级 3D 打印、「软件背后的人」引发集体共鸣、混合推理智能体在潜空间思考等 10 条精选"
 slug = "2026-10-19-hacker-news-daily"
