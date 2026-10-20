@@ -1,6 +1,6 @@
 +++
 draft = false
-date = 2026-10-20T08:30:00+08:00
+date = 2026-10-20T08:00:00+08:00
 title = "Hacker News 深度分析：Mistral 时序大模型与 MiniMax Flash 领跑，编程乐趣之争再起"
 description = "本期精选15篇热门文章：Mistral发布时序基础模型Timestral、MiniMax M3.1 Flash刷新性价比边界、Wine移植OpenBSD、单电机无人机、RuneScape成为Agent基准测试场，以及关于AI时代编程乐趣的深度讨论"
 slug = "hackernews-daily-2026-10-20"
