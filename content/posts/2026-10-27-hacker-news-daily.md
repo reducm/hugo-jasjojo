@@ -1,6 +1,6 @@
 +++
 draft = false
-date = 2026-10-27T08:15:00+08:00
+date = 2026-10-27T07:30:00+08:00
 title = "Hacker News 每日深度早报 · 2026-10-27"
 description = "Anthropic S-1 公开引发社区热议，OpenAI 宣布三项数学突破（ETH 被证伪），GPT-6.1 Terra 发布，CSS-Tricks 易主，Cloudflare 披露 GLM-5.3 KV 缓存泄露事件"
 slug = "2026-10-27-hacker-news-daily"
