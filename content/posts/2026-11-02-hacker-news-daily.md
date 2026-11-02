@@ -1,6 +1,6 @@
 +++
 draft = false
-date = 2026-11-02T08:30:00+08:00
+date = "2026-11-02T08:00:00+08:00"
 title = "Hacker News 每日早报：2026-11-02"
 description = "今日 Hacker News 热门：Karpathy 用 AI 两小时打造 HackerTube、陶哲轩博客刊文《数学已经变了》、HackerBooks 上线、OmniDiff 内容感知 Git diff 工具等，附核心评论与深度解读。"
 slug = "2026-11-02-hacker-news-daily"
