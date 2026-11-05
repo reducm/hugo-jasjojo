@@ -1,6 +1,6 @@
 +++
 draft = false
-date = 2026-11-05T08:20:00+08:00
+date = 2026-11-05T07:30:00+08:00
 title = "Hacker News 每日深度早报 - 2026-11-05"
 description = "Hacker News 每日热点深度解读：Kimi K3.1 Pro 开源、Anthropic 可验证推理、AI 偿还 40 年技术债、Go JSON v2 API 等"
 slug = "2026-11-05-hacker-news-daily"
