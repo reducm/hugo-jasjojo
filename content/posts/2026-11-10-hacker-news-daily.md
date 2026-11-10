@@ -1,6 +1,6 @@
 +++
 draft = false
-date = 2026-11-10T08:30:00+08:00
+date = 2026-11-10T07:00:00+08:00
 title = "Hacker News 每日早报 (2026-11-10)"
 description = "Hacker News 热榜深度解读：Claude Fable 5.2 发布、Opus 5.5 是否被削弱引热议、加拿大实时支付系统上线、Google Gemini 隐私争议、E-means 聚类算法提速 10 倍等 12 条精选。"
 slug = "2026-11-10-hacker-news-daily"
